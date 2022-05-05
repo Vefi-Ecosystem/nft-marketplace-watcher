@@ -1,1 +1,5 @@
-export function handleCollectionDeployment() {}
+import { pick } from 'ramda';
+
+export function handleCollectionDeploymentEvent(...args: any[]) {
+  const collectionEntry = pick([]);
+}

@@ -27,7 +27,12 @@ export default class Order {
         allowNull: false
       },
       collection: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      creator: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, ModelStatic } from 'sequelize';
+import { Sequelize, DataTypes, Model, ModelStatic, UpdateOptions } from 'sequelize';
 
 export default class Order {
   model: ModelStatic<Model<any, any>>;
@@ -33,7 +33,29 @@ export default class Order {
       creator: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      status: {
+        type: DataTypes.ENUM('STARTED', 'ACCEPTED', 'CANCELLED', 'REJECTED'),
+        allowNull: false,
+        validate: {
+          is: ['STARTED', 'ACCEPTED', 'CANCELLED', 'REJECTED']
+        }
       }
+    });
+  }
+
+  addOrder(body: any): Promise<Model<any, any>> {
+    return new Promise((resolve, reject) => {
+      this.model.create(body).then(resolve).catch(reject);
+    });
+  }
+
+  updateOrderItem(update: any, opts: UpdateOptions): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.model
+        .update(update, opts)
+        .then(([affected]) => resolve(affected))
+        .catch(reject);
     });
   }
 }

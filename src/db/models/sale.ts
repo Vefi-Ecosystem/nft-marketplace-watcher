@@ -5,10 +5,14 @@ export default class Sale {
 
   constructor(sequelize: Sequelize) {
     this.model = sequelize.define('Sale', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       marketId: {
         type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true
+        allowNull: false
       },
       creator: {
         type: DataTypes.STRING,
@@ -40,6 +44,10 @@ export default class Sale {
         validate: {
           is: ['ON_GOING', 'FINALIZED', 'CANCELLED']
         }
+      },
+      network: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     });
   }
@@ -47,6 +55,12 @@ export default class Sale {
   addSaleItem(body: any): Promise<Model<any, any>> {
     return new Promise((resolve, reject) => {
       this.model.create(body).then(resolve).catch(reject);
+    });
+  }
+
+  findAll(): Promise<Array<Model<any, any>>> {
+    return new Promise((resolve, reject) => {
+      this.model.findAll().then(resolve).catch(reject);
     });
   }
 

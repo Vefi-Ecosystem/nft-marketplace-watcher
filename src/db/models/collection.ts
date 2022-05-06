@@ -5,9 +5,13 @@ export default class Collection {
 
   constructor(sequelize: Sequelize) {
     this.model = sequelize.define('Collection', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       collectionId: {
         type: DataTypes.STRING,
-        primaryKey: true,
         allowNull: false
       },
       timeStamp: {
@@ -32,6 +36,10 @@ export default class Collection {
       },
       collectionImage: {
         type: DataTypes.STRING
+      },
+      network: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     });
   }

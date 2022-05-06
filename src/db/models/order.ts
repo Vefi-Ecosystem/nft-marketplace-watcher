@@ -5,10 +5,14 @@ export default class Order {
 
   constructor(sequelize: Sequelize) {
     this.model = sequelize.define('Order', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       orderId: {
         type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true
+        allowNull: false
       },
       to: {
         type: DataTypes.STRING,
@@ -40,6 +44,10 @@ export default class Order {
         validate: {
           is: ['STARTED', 'ACCEPTED', 'CANCELLED', 'REJECTED']
         }
+      },
+      network: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     });
   }
@@ -47,6 +55,12 @@ export default class Order {
   addOrder(body: any): Promise<Model<any, any>> {
     return new Promise((resolve, reject) => {
       this.model.create(body).then(resolve).catch(reject);
+    });
+  }
+
+  findAll(): Promise<Array<Model<any, any>>> {
+    return new Promise((resolve, reject) => {
+      this.model.findAll().then(resolve).catch(reject);
     });
   }
 

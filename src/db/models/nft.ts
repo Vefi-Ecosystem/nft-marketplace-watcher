@@ -5,10 +5,14 @@ export default class NFT {
 
   constructor(sequelize: Sequelize) {
     this.model = sequelize.define('NFT', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       tokenId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true
+        allowNull: false
       },
       tokenURI: {
         type: DataTypes.STRING,
@@ -20,6 +24,10 @@ export default class NFT {
       },
       timeStamp: {
         type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      network: {
+        type: DataTypes.STRING,
         allowNull: false
       }
     });
@@ -34,12 +42,6 @@ export default class NFT {
   findAll(): Promise<Array<Model<any, any>>> {
     return new Promise((resolve, reject) => {
       this.model.findAll().then(resolve).catch(reject);
-    });
-  }
-
-  findById(tokenId: number): Promise<Model<any, any> | null> {
-    return new Promise((resolve, reject) => {
-      this.model.findByPk(tokenId).then(resolve).catch(reject);
     });
   }
 }

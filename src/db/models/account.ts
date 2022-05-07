@@ -18,6 +18,12 @@ export default class Account {
     });
   }
 
+  findAll(): Promise<Array<Model<any, any>>> {
+    return new Promise((resolve, reject) => {
+      this.model.findAll().then(resolve).catch(reject);
+    });
+  }
+
   updateAccount(update: any, opts: UpdateOptions): Promise<number> {
     return new Promise((resolve, reject) => {
       this.model

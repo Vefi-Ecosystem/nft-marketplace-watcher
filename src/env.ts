@@ -18,3 +18,6 @@ export const bscContractAddress = process.env.BSC_CONTRACT_ADDRESS;
 // Push notifications
 export const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
 export const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+
+// JWT
+export const jwtSecret = process.env.JWT_SECRET;

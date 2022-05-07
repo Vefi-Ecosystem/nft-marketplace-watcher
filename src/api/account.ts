@@ -1,9 +1,11 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
 import { filter, map, multiply, find, pick, any as anyMatch } from 'ramda';
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
 import logger from '../logger';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import { jwtSecret } from '../env';
 
 export async function createAccount(req: ExpressRequestType, res: ExpressResponseType) {
   try {
@@ -14,11 +16,13 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
 
     if (exists) {
       result = find(account => account.accountId === body.accountId, allAccounts);
-      return _resolveWithCodeAndResponse(res, 200, { result });
+      const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
+      return _resolveWithCodeAndResponse(res, 200, { ...result, token });
     }
 
     result = (await models.account.addAccount(body)).toJSON();
-    return _resolveWithCodeAndResponse(res, 201, { result });
+    const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
+    return _resolveWithCodeAndResponse(res, 201, { ...result, token });
   } catch (error: any) {
     _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }

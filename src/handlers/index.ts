@@ -2,6 +2,7 @@ import { Interface } from '@ethersproject/abi';
 import { pick } from 'ramda';
 import { buildProvider } from '../utils';
 import { models } from '../db';
+import logger from '../logger';
 import marketABI from '../assets/MarketplaceABI.json';
 
 const abiInterface = new Interface(marketABI);
@@ -31,9 +32,9 @@ export function handleCollectionDeploymentEvent(network: string, url: string) {
         network
       });
 
-      console.log('New collection created: %s', JSON.stringify(storedCollection.toJSON(), undefined, 2));
+      logger('New collection created: %s', JSON.stringify(storedCollection.toJSON(), undefined, 2));
     } catch (error) {
-      console.log(error);
+      logger(error);
     }
   };
 }
@@ -54,9 +55,9 @@ export function handleMintEvent(network: string) {
         timeStamp: timestamp
       });
 
-      console.log('New token minted: %s', JSON.stringify(storedNFT.toJSON(), undefined, 2));
+      logger('New token minted: %s', JSON.stringify(storedNFT.toJSON(), undefined, 2));
     } catch (error) {
-      console.log(error);
+      logger(error);
     }
   };
 }
@@ -79,9 +80,9 @@ export function handleMarketItemCreatedEvent(network: string) {
         network
       });
 
-      console.log('New market item created: %s', JSON.stringify(storedSaleItem.toJSON(), undefined, 2));
+      logger('New market item created: %s', JSON.stringify(storedSaleItem.toJSON(), undefined, 2));
     } catch (error) {
-      console.log(error);
+      logger(error);
     }
   };
 }
@@ -98,9 +99,9 @@ export function handleMarketItemCancelledEvent(network: string) {
         { where: { marketId, network } }
       );
 
-      console.log('Market item cancelled, %d items affected ', affectedRecord);
+      logger('Market item cancelled, %d items affected ', affectedRecord);
     } catch (error) {
-      console.log(error);
+      logger(error);
     }
   };
 }
@@ -117,9 +118,92 @@ export function handleSaleMadeEvent(network: string) {
         { where: { marketId, network } }
       );
 
-      console.log('Market item finalized, %d items affected', affectedRecord);
+      logger('Market item finalized, %d items affected', affectedRecord);
     } catch (error) {
-      console.log(error);
+      logger(error);
+    }
+  };
+}
+
+export function handleOrderMadeEvent(network: string) {
+  return async function (log: any) {
+    try {
+      const parsedLog = abiInterface.parseLog(log);
+      const {
+        args: [creator, to, collection, tokenId, bidCurrency, amount, orderId]
+      } = pick(['args'], parsedLog);
+      const storedOrder = await models.order.addOrder({
+        creator,
+        to,
+        collection,
+        orderId,
+        bidCurrency,
+        amount,
+        tokenId,
+        status: 'STARTED',
+        network
+      });
+
+      logger('New offer made: %s', JSON.stringify(storedOrder.toJSON(), undefined, 2));
+    } catch (error) {
+      logger(error);
+    }
+  };
+}
+
+export function handleOrderEndedEvent(network: string) {
+  return async function (log: any) {
+    try {
+      const parsedLog = abiInterface.parseLog(log);
+      const {
+        args: [orderId, timestamp]
+      } = pick(['args'], parsedLog);
+      const affectedCount = await models.order.updateOrderItem(
+        { status: 'ACCEPTED', timeStamp: timestamp },
+        { where: { orderId, network } }
+      );
+
+      logger('Order updated. Rows affected: %d', affectedCount);
+    } catch (error) {
+      logger(error);
+    }
+  };
+}
+
+export function handleOrderCancelledEvent(network: string) {
+  return async function (log: any) {
+    try {
+      const parsedLog = abiInterface.parseLog(log);
+      const {
+        args: [orderId, timestamp]
+      } = pick(['args'], parsedLog);
+      const affectedCount = await models.order.updateOrderItem(
+        { status: 'CANCELLED', timeStamp: timestamp },
+        { where: { orderId, network } }
+      );
+
+      logger('Order updated. Rows affected: %d', affectedCount);
+    } catch (error) {
+      logger(error);
+    }
+  };
+}
+
+export function handleOrderRejectedEvent(network: string) {
+  return async function (log: any) {
+    try {
+      const parsedLog = abiInterface.parseLog(log);
+      const {
+        args: [orderId, timestamp]
+      } = pick(['args'], parsedLog);
+      const affectedCount = await models.order.updateOrderItem(
+        { status: 'REJECTED', timeStamp: timestamp },
+        { where: { orderId, network } }
+      );
+
+      logger('Order updated. Rows affected: %d', affectedCount);
+    } catch (error) {
+      logger(error);
     }
   };
 }

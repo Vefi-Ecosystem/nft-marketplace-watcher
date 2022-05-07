@@ -5,7 +5,11 @@ import {
   handleMintEvent,
   handleMarketItemCreatedEvent,
   handleMarketItemCancelledEvent,
-  handleSaleMadeEvent
+  handleSaleMadeEvent,
+  handleOrderMadeEvent,
+  handleOrderEndedEvent,
+  handleOrderCancelledEvent,
+  handleOrderRejectedEvent
 } from './handlers';
 
 const collectionDeployedHash: string = hashId('CollectionDeployed(address,address,uint256,string,string,string)');
@@ -28,8 +32,8 @@ export function handleEvents(url: string, address: string, network: string) {
   provider.on({ address, topics: [marketItemCreatedHash] }, handleMarketItemCreatedEvent(network));
   provider.on({ address, topics: [marketItemCancelledHash] }, handleMarketItemCancelledEvent(network));
   provider.on({ address, topics: [saleMadeHash] }, handleSaleMadeEvent(network));
-  provider.on({ address, topics: [orderMadeHash] }, console.log);
-  provider.on({ address, topics: [orderCancelledHash] }, console.log);
-  provider.on({ address, topics: [orderEndedHash] }, console.log);
-  provider.on({ address, topics: [orderRejectedHash] }, console.log);
+  provider.on({ address, topics: [orderMadeHash] }, handleOrderMadeEvent(network));
+  provider.on({ address, topics: [orderCancelledHash] }, handleOrderCancelledEvent(network));
+  provider.on({ address, topics: [orderEndedHash] }, handleOrderEndedEvent(network));
+  provider.on({ address, topics: [orderRejectedHash] }, handleOrderRejectedEvent(network));
 }

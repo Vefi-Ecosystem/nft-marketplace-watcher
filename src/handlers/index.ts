@@ -1,5 +1,5 @@
 import { Interface } from '@ethersproject/abi';
-import { pick } from 'ramda';
+import { find, map, pick } from 'ramda';
 import { buildProvider } from '../utils';
 import { models } from '../db';
 import logger from '../logger';
@@ -17,10 +17,10 @@ export function handleCollectionDeploymentEvent(network: string, url: string) {
       const provider = buildProvider(url, undefined);
       const data = abiInterface.getSighash('_collectionOwner()');
       const ownerCallResult = await provider.call({ to: _collection, data });
-      const data2 = abiInterface.getSighash('_imageURI()');
-      const imageURICallResult = await provider.call({ to: _collection, data: data2 });
+      const data2 = abiInterface.getSighash('_collectionURI()');
+      const collectionURICallResult = await provider.call({ to: _collection, data: data2 });
       const [collectionOwner] = abiInterface.decodeFunctionResult('_collectionOwner()', ownerCallResult);
-      const [collectionImage] = abiInterface.decodeFunctionResult('_imageURI()', imageURICallResult);
+      const [collectionURI] = abiInterface.decodeFunctionResult('_collectionURI()', collectionURICallResult);
       const storedCollection = await models.collection.addCollection({
         collectionName: _name,
         collectionOwner,
@@ -28,7 +28,7 @@ export function handleCollectionDeploymentEvent(network: string, url: string) {
         collectionSymbol: _symbol,
         collectionCategory: _category,
         timeStamp: timestamp,
-        collectionImage,
+        collectionURI,
         network
       });
 
@@ -67,7 +67,7 @@ export function handleMarketItemCreatedEvent(network: string) {
     try {
       const parsedLog = abiInterface.parseLog(log);
       const {
-        args: [_creator, _collection, _tokenId, _currency, _PriceInEther, _marketItemId, timestamp]
+        args: [_creator, _collection, _tokenId, _currency, _price, _marketItemId, timestamp]
       } = pick(['args'], parsedLog);
       const storedSaleItem = await models.sale.addSaleItem({
         marketId: _marketItemId,
@@ -77,6 +77,7 @@ export function handleMarketItemCreatedEvent(network: string) {
         currency: _currency,
         timeStamp: timestamp,
         status: 'ON_GOING',
+        price: _price,
         network
       });
 
@@ -111,11 +112,18 @@ export function handleSaleMadeEvent(network: string) {
     try {
       const parsedLog = abiInterface.parseLog(log);
       const {
-        args: [marketId, _seller, , , , , timestamp]
+        args: [marketId, , _buyer, tokenId, , , timestamp]
       } = pick(['args'], parsedLog);
+
       const affectedRecord = await models.sale.updateSaleItem(
         { status: 'FINALIZED', timeStamp: timestamp },
         { where: { marketId, network } }
+      );
+      await models.nft.updateNFT(
+        {
+          owner: _buyer
+        },
+        { where: { tokenId, network } }
       );
 
       logger('Market item finalized, %d items affected', affectedRecord);
@@ -162,6 +170,18 @@ export function handleOrderEndedEvent(network: string) {
         { status: 'ACCEPTED', timeStamp: timestamp },
         { where: { orderId, network } }
       );
+
+      let allOrders: any[] = await models.order.findAll();
+      allOrders = map(order => order.toJSON(), allOrders);
+
+      const order = find(or => or.orderId === orderId && or.network === network, allOrders);
+
+      const NFT = find(
+        (nft: any) => order.tokenId === nft.tokenId && nft.network === network,
+        map(nft => nft.toJSON(), await models.nft.findAll())
+      );
+
+      await models.nft.updateNFT({ owner: order.creator }, { where: { tokenId: NFT.tokenId, network } });
 
       logger('Order updated. Rows affected: %d', affectedCount);
     } catch (error) {

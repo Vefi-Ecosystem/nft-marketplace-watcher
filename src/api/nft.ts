@@ -1,5 +1,5 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
-import { filter, map, multiply, find } from 'ramda';
+import { filter, map, multiply, find, pick } from 'ramda';
 import axios from 'axios';
 import logger from '../logger';
 import { models } from '../db';
@@ -60,6 +60,93 @@ export async function findNftByIdAndNetwork(req: ExpressRequestType, res: Expres
 
     const { data: metadata } = await axios.get((result as any).tokenURI, { headers: { Accepts: 'application/json' } });
     result = { ...(result as any), metadata };
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
+export async function findNFTsByCollectionId(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allNFTs = await models.nft.findAll();
+    let result = map(nft => nft.toJSON(), allNFTs);
+
+    const { params, query } = pick(['params', 'query'], req);
+
+    result = filter(nft => nft.collectionId === params.collectionId, result).map(nft => {
+      return new Promise(resolve => {
+        axios
+          .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
+          .then(resp => {
+            logger('Now querying: %s', nft.tokenURI);
+
+            resolve({
+              ...nft,
+              metadata: {
+                ...resp.data
+              }
+            });
+          })
+          .catch(() => resolve(undefined));
+      });
+    });
+
+    result = await Promise.all(result);
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    } else {
+      result = result.slice(0, 10);
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
+export async function findNFTsByOwnerId(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allNFTs = await models.nft.findAll();
+
+    let result = map(nft => nft.toJSON(), allNFTs);
+
+    const { params, query } = pick(['params', 'query'], req);
+
+    result = filter(nft => nft.owner === params.owner, result).map(nft => {
+      return new Promise(resolve => {
+        axios
+          .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
+          .then(resp => {
+            logger('Now querying: %s', nft.tokenURI);
+
+            resolve({
+              ...nft,
+              metadata: {
+                ...resp.data
+              }
+            });
+          })
+          .catch(() => resolve(undefined));
+      });
+    });
+
+    result = await Promise.all(result);
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    } else {
+      result = result.slice(0, 10);
+    }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {

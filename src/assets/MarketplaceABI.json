@@ -197,7 +197,7 @@
       { "internalType": "string", "name": "symbol_", "type": "string" },
       { "internalType": "string", "name": "category_", "type": "string" },
       { "internalType": "address", "name": "paymentReceiver_", "type": "address" },
-      { "internalType": "string", "name": "_imageURI", "type": "string" }
+      { "internalType": "string", "name": "_collectionURI", "type": "string" }
     ],
     "name": "deployCollection",
     "outputs": [],

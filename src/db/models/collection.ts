@@ -34,7 +34,7 @@ export default class Collection {
         type: DataTypes.STRING,
         allowNull: false
       },
-      collectionImage: {
+      collectionURI: {
         type: DataTypes.STRING
       },
       network: {

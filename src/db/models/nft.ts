@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, ModelStatic } from 'sequelize';
+import { Sequelize, DataTypes, Model, ModelStatic, UpdateOptions } from 'sequelize';
 
 export default class NFT {
   model: ModelStatic<Model<any, any>>;
@@ -46,6 +46,15 @@ export default class NFT {
   findAll(): Promise<Array<Model<any, any>>> {
     return new Promise((resolve, reject) => {
       this.model.findAll().then(resolve).catch(reject);
+    });
+  }
+
+  updateNFT(body: any, opts: UpdateOptions): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.model
+        .update(body, opts)
+        .then(([affected]) => resolve(affected))
+        .catch(reject);
     });
   }
 }

@@ -24,6 +24,21 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
     const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
     return _resolveWithCodeAndResponse(res, 201, { ...result, token });
   } catch (error: any) {
-    _resolveWithCodeAndResponse(res, 500, { error: error.message });
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function getAccountFromRequest(req: ExpressRequestType & { accountId: string }, res: ExpressResponseType) {
+  try {
+    const allAccounts = map(account => account.toJSON(), await models.account.findAll());
+    const { accountId } = pick(['accountId'], req);
+    const exists = anyMatch(account => account.accoundId === accountId, allAccounts);
+
+    if (!exists) _throwErrorWithResponseCode('Account not found', 404);
+
+    const result = find(account => account.accountId === accountId, allAccounts);
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
   }
 }

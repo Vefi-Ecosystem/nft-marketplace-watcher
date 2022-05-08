@@ -1,7 +1,5 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
-import { filter, map, multiply, find, pick, count } from 'ramda';
-import axios from 'axios';
-import logger from '../logger';
+import { filter, map, multiply, pick, count } from 'ramda';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
 

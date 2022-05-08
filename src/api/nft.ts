@@ -32,6 +32,38 @@ export async function getAllNFTsByNetwork(req: ExpressRequestType, res: ExpressR
     }, result);
 
     result = await Promise.all(result);
+    result = await Promise.all(
+      map(x => {
+        return new Promise((resolve, reject) => {
+          models.order
+            .findAll()
+            .then(m =>
+              m
+                .map(order => order.toJSON())
+                .filter(order => order.network === req.params.network && order.tokenId === x.tokenId)
+                .sort((a, b) => a.amount - b.amount)
+            )
+            .then(async val => {
+              let topBuyers: any[] = [];
+
+              for (const order of val) {
+                const buyer = (await models.account.findAll())
+                  .map(acc => acc.toJSON())
+                  .find(acc => acc.accountId === order.creator);
+                topBuyers = [...topBuyers, buyer];
+              }
+              return Promise.resolve(topBuyers);
+            })
+            .then(topBuyers => {
+              resolve({
+                ...x,
+                topBuyers
+              });
+            })
+            .catch(reject);
+        });
+      }, result)
+    );
 
     if (!!req.query.page) {
       const page = parseInt(<string>req.query.page);
@@ -74,25 +106,59 @@ export async function findNFTsByCollectionId(req: ExpressRequestType, res: Expre
 
     const { params, query } = pick(['params', 'query'], req);
 
-    result = filter(nft => nft.collectionId === params.collectionId, result).map(nft => {
-      return new Promise(resolve => {
-        axios
-          .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
-          .then(resp => {
-            logger('Now querying: %s', nft.tokenURI);
+    result = filter(nft => nft.collectionId === params.collectionId && nft.network === params.network, result).map(
+      nft => {
+        return new Promise(resolve => {
+          axios
+            .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
+            .then(resp => {
+              logger('Now querying: %s', nft.tokenURI);
 
-            resolve({
-              ...nft,
-              metadata: {
-                ...resp.data
-              }
-            });
-          })
-          .catch(() => resolve(undefined));
-      });
-    });
+              resolve({
+                ...nft,
+                metadata: {
+                  ...resp.data
+                }
+              });
+            })
+            .catch(() => resolve(undefined));
+        });
+      }
+    );
 
     result = await Promise.all(result);
+    result = await Promise.all(
+      map(x => {
+        return new Promise((resolve, reject) => {
+          models.order
+            .findAll()
+            .then(m =>
+              m
+                .map(order => order.toJSON())
+                .filter(order => order.network === req.params.network && order.tokenId === x.tokenId)
+                .sort((a, b) => a.amount - b.amount)
+            )
+            .then(async val => {
+              let topBuyers: any[] = [];
+
+              for (const order of val) {
+                const buyer = (await models.account.findAll())
+                  .map(acc => acc.toJSON())
+                  .find(acc => acc.accountId === order.creator);
+                topBuyers = [...topBuyers, buyer];
+              }
+              return Promise.resolve(topBuyers);
+            })
+            .then(topBuyers => {
+              resolve({
+                ...x,
+                topBuyers
+              });
+            })
+            .catch(reject);
+        });
+      }, result)
+    );
 
     if (!!query.page) {
       const page = parseInt(<string>query.page);
@@ -118,7 +184,7 @@ export async function findNFTsByOwnerId(req: ExpressRequestType, res: ExpressRes
 
     const { params, query } = pick(['params', 'query'], req);
 
-    result = filter(nft => nft.owner === params.owner, result).map(nft => {
+    result = filter(nft => nft.owner === params.owner && nft.network === params.network, result).map(nft => {
       return new Promise(resolve => {
         axios
           .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })

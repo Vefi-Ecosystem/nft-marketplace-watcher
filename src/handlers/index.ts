@@ -1,9 +1,12 @@
 import { Interface } from '@ethersproject/abi';
-import { find, map, pick } from 'ramda';
-import { buildProvider } from '../utils';
+import { AddressZero } from '@ethersproject/constants';
+import { formatEther } from '@ethersproject/units';
+import { find, map, pick, divide } from 'ramda';
+import { buildProvider, obtainERC20Decimals, obtainERC20Name } from '../utils';
 import { models } from '../db';
 import logger from '../logger';
 import marketABI from '../assets/MarketplaceABI.json';
+import { sendNotification } from '../push';
 
 const abiInterface = new Interface(marketABI);
 
@@ -107,12 +110,12 @@ export function handleMarketItemCancelledEvent(network: string) {
   };
 }
 
-export function handleSaleMadeEvent(network: string) {
+export function handleSaleMadeEvent(url: string, network: string) {
   return async function (log: any) {
     try {
       const parsedLog = abiInterface.parseLog(log);
       const {
-        args: [marketId, , _buyer, tokenId, , , timestamp]
+        args: [marketId, owner, _buyer, tokenId, , token, amount, timestamp]
       } = pick(['args'], parsedLog);
 
       const affectedRecord = await models.sale.updateSaleItem(
@@ -126,6 +129,17 @@ export function handleSaleMadeEvent(network: string) {
         { where: { tokenId, network } }
       );
 
+      const tokenName = token === AddressZero ? 'Ethers' : await obtainERC20Name(token, url, undefined);
+      const readableAmount =
+        token === AddressZero
+          ? formatEther(amount)
+          : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(token, url, undefined)));
+
+      await sendNotification(
+        owner,
+        `Account ${_buyer} has purchased NFT with ID ${tokenId} for ${readableAmount} ${tokenName}`
+      );
+
       logger('Market item finalized, %d items affected', affectedRecord);
     } catch (error) {
       logger(error);
@@ -133,7 +147,7 @@ export function handleSaleMadeEvent(network: string) {
   };
 }
 
-export function handleOrderMadeEvent(network: string) {
+export function handleOrderMadeEvent(url: string, network: string) {
   return async function (log: any) {
     try {
       const parsedLog = abiInterface.parseLog(log);
@@ -151,6 +165,17 @@ export function handleOrderMadeEvent(network: string) {
         status: 'STARTED',
         network
       });
+
+      const tokenName = bidCurrency === AddressZero ? 'Ethers' : await obtainERC20Name(bidCurrency, url, undefined);
+      const readableAmount =
+        bidCurrency === AddressZero
+          ? formatEther(amount)
+          : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(bidCurrency, url, undefined)));
+
+      await sendNotification(
+        bidCurrency,
+        `Account ${creator} is offering ${readableAmount} ${tokenName} for NFT with ID ${tokenId}`
+      );
 
       logger('New offer made: %s', JSON.stringify(storedOrder.toJSON(), undefined, 2));
     } catch (error) {

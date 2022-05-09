@@ -104,15 +104,21 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
   }
 }
 
-export async function findCollectionsByOwner(req: ExpressRequestType, res: ExpressResponseType) {
+export async function findCollectionsByOwner(
+  req: ExpressRequestType & { accountId: string },
+  res: ExpressResponseType
+) {
   try {
     const allCollections = await models.collection.findAll();
 
     let result = map(collection => collection.toJSON(), allCollections);
 
-    const { params, query } = pick(['params', 'query'], req);
+    const { params, query, accountId } = pick(['params', 'query', 'accountId'], req);
 
-    result = filter(collection => collection.collectionOwner === params.owner, result).map(collection => {
+    result = filter(
+      collection => collection.collectionOwner === accountId && collection.network === params.network,
+      result
+    ).map(collection => {
       return new Promise(resolve => {
         axios
           .get(collection.collectionURI, { headers: { Accepts: 'application/json' } })

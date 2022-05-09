@@ -16,7 +16,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
   next();
 });
-app.use('/', router);
+app.use('/api', router);
 
 app.listen(port, () => {
   console.log('App is running on: %d', port);

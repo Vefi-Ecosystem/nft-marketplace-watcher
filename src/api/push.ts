@@ -3,12 +3,12 @@ import { map, pick, any as anyMatch } from 'ramda';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
 
-export async function subscribeForPush(req: ExpressRequestType, res: ExpressResponseType) {
+export async function subscribeForPush(req: ExpressRequestType & { accountId: string }, res: ExpressResponseType) {
   try {
-    const { body } = pick(['body'], req);
+    const { body, accountId } = pick(['body', 'accountId'], req);
     const allPushSub = await models.push.findAllPushSubscriptions();
     const allPushSubJSON = map(push => push.toJSON(), allPushSub);
-    const exists = anyMatch(push => push.accountId === body.accountId, allPushSubJSON);
+    const exists = anyMatch(push => push.accountId === accountId, allPushSubJSON);
     let result: any;
 
     if (exists) {
@@ -17,10 +17,10 @@ export async function subscribeForPush(req: ExpressRequestType, res: ExpressResp
           endpoint: body.endpoint,
           keys: body.keys
         },
-        { where: { accountId: body.accountId } }
+        { where: { accountId } }
       );
     } else {
-      result = await models.push.addPushSubscription(body);
+      result = await models.push.addPushSubscription({ ...body, accountId });
       result = result.toJSON();
     }
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -29,4 +29,14 @@ export async function subscribeForPush(req: ExpressRequestType, res: ExpressResp
   }
 }
 
-export async function cancelPushSubscription() {}
+export async function cancelPushSubscription(
+  req: ExpressRequestType & { accountId: string },
+  res: ExpressResponseType
+) {
+  try {
+    await models.push.deletePushSubscription({ where: { accountId: req.accountId } });
+    return _resolveWithCodeAndResponse(res, 200, { result: 'DONE' });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}

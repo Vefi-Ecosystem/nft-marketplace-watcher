@@ -75,7 +75,7 @@ export function handleMarketItemCreatedEvent(url: string, network: string) {
 
       const readableAmount =
         _currency === AddressZero
-          ? formatEther(_price)
+          ? parseInt(formatEther(_price))
           : divide(parseInt(_price), Math.pow(10, await obtainERC20Decimals(_currency, url, undefined)));
 
       const storedSaleItem = await models.sale.addSaleItem({
@@ -138,7 +138,7 @@ export function handleSaleMadeEvent(url: string, network: string) {
       const tokenName = token === AddressZero ? 'Ethers' : await obtainERC20Name(token, url, undefined);
       const readableAmount =
         token === AddressZero
-          ? formatEther(amount)
+          ? parseInt(formatEther(amount))
           : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(token, url, undefined)));
 
       await sendNotification(
@@ -164,7 +164,7 @@ export function handleOrderMadeEvent(url: string, network: string) {
       const tokenName = bidCurrency === AddressZero ? 'Ethers' : await obtainERC20Name(bidCurrency, url, undefined);
       const readableAmount =
         bidCurrency === AddressZero
-          ? formatEther(amount)
+          ? parseInt(formatEther(amount))
           : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(bidCurrency, url, undefined)));
 
       const storedOrder = await models.order.addOrder({

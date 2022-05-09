@@ -65,13 +65,19 @@ export function handleMintEvent(network: string) {
   };
 }
 
-export function handleMarketItemCreatedEvent(network: string) {
+export function handleMarketItemCreatedEvent(url: string, network: string) {
   return async function (log: any) {
     try {
       const parsedLog = abiInterface.parseLog(log);
       const {
         args: [_creator, _collection, _tokenId, _currency, _price, _marketItemId, timestamp]
       } = pick(['args'], parsedLog);
+
+      const readableAmount =
+        _currency === AddressZero
+          ? formatEther(_price)
+          : divide(parseInt(_price), Math.pow(10, await obtainERC20Decimals(_currency, url, undefined)));
+
       const storedSaleItem = await models.sale.addSaleItem({
         marketId: _marketItemId,
         creator: _creator,
@@ -80,7 +86,7 @@ export function handleMarketItemCreatedEvent(network: string) {
         currency: _currency,
         timeStamp: timestamp,
         status: 'ON_GOING',
-        price: _price,
+        price: readableAmount,
         network
       });
 
@@ -154,23 +160,24 @@ export function handleOrderMadeEvent(url: string, network: string) {
       const {
         args: [creator, to, collection, tokenId, bidCurrency, amount, orderId]
       } = pick(['args'], parsedLog);
-      const storedOrder = await models.order.addOrder({
-        creator,
-        to,
-        collection,
-        orderId,
-        bidCurrency,
-        amount,
-        tokenId,
-        status: 'STARTED',
-        network
-      });
 
       const tokenName = bidCurrency === AddressZero ? 'Ethers' : await obtainERC20Name(bidCurrency, url, undefined);
       const readableAmount =
         bidCurrency === AddressZero
           ? formatEther(amount)
           : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(bidCurrency, url, undefined)));
+
+      const storedOrder = await models.order.addOrder({
+        creator,
+        to,
+        collection,
+        orderId,
+        bidCurrency,
+        amount: readableAmount,
+        tokenId,
+        status: 'STARTED',
+        network
+      });
 
       await sendNotification(
         bidCurrency,

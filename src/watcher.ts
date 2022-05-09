@@ -29,7 +29,7 @@ export function handleEvents(url: string, address: string, network: string) {
 
   provider.on({ address, topics: [collectionDeployedHash] }, handleCollectionDeploymentEvent(network, url));
   provider.on({ address, topics: [mintHash] }, handleMintEvent(network));
-  provider.on({ address, topics: [marketItemCreatedHash] }, handleMarketItemCreatedEvent(network));
+  provider.on({ address, topics: [marketItemCreatedHash] }, handleMarketItemCreatedEvent(url, network));
   provider.on({ address, topics: [marketItemCancelledHash] }, handleMarketItemCancelledEvent(network));
   provider.on({ address, topics: [saleMadeHash] }, handleSaleMadeEvent(url, network));
   provider.on({ address, topics: [orderMadeHash] }, handleOrderMadeEvent(url, network));

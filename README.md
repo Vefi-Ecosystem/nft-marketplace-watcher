@@ -49,3 +49,40 @@ For now, our IPFS is deployed at `http://20.118.216.88:7344`. This is the root U
   }
 }
 ```
+
+
+
+
+#### API
+
+The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the API using the following endpoints:
+
+
+*Endpoint:* **`/api/account`**
+
+*Method:* **`POST`**
+
+*Content-Type:* **`application/json`**
+
+*Parameters:*
+
+  - accountId
+    * in: `body`
+    * type: `string`
+    * description: `Address of account owner`
+    * required: `true`
+  - name
+    * in: `body`
+    * type: `string`
+    * description: `Name of account owner`
+    * required: `true`
+  - email
+    * in: `body`
+    * type: `string`
+    * description: `Email of account owner`
+    * required: `true`
+  - imageURI
+    * in: `body`
+    * type: `string`
+    * description: `Image of account owner`
+    * required: `false`

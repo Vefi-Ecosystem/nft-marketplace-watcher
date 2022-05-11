@@ -90,6 +90,17 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Image of account owner`
     * required: `false`
+  
+*Response:*
+
+```json
+{
+  "result": {
+    // User's info
+    "token": "5..." // Json web token
+  }
+}
+```
 
 
 *Endpoint:* **`/api/account`**
@@ -105,3 +116,13 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Bearer token`
     * required: `true`
+
+*Response:*
+
+```json
+{
+  "result": {
+    // Decoded user's info
+  }
+}
+```

@@ -13,6 +13,8 @@ For now, our IPFS is deployed at `http://20.118.216.88:7344`. This is the root U
 
 *Content Type:* **`multipart/form-data`**
 
+*Description:* Pin a file to IPFS server
+
 *Parameters:* 
 
   - file:
@@ -37,7 +39,9 @@ For now, our IPFS is deployed at `http://20.118.216.88:7344`. This is the root U
 
 *Content Type:* **`application/json`**
 
-*Parameters:* Any JSON body is accepted. Use this endpoint to store metadata for collections/NFTs
+*Description:* Pin JSON metadata.
+
+*Parameters:* Any JSON body is accepted. Use this endpoint to store metadata for collections/NFTs.
 
 *Response:*
 
@@ -86,3 +90,18 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Image of account owner`
     * required: `false`
+
+
+*Endpoint:* **`/api/account`**
+
+*Method:* **`GET`**
+
+*Description:* Retrieve account from request.
+
+*Parameters:* 
+
+  - Authorization
+    * in: `header`
+    * type: `string`
+    * description: `Bearer token`
+    * required: `true`

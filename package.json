@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write **/**/*.{js,json,ts}",
     "build": "rm -rf build && tsc",
-    "start": "node build/index"
+    "start": "cross-env DEBUG=app node build/index"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   "homepage": "https://github.com/Vefi-Ecosystem/nft-marketplace-watcher#readme",
   "dependencies": {
     "@ethersproject/abi": "^5.6.1",
+    "@ethersproject/bignumber": "^5.6.0",
     "@ethersproject/constants": "^5.6.0",
     "@ethersproject/hash": "^5.6.0",
     "@ethersproject/providers": "^5.6.5",
@@ -41,6 +42,8 @@
     "web-push": "^3.5.0"
   },
   "devDependencies": {
+    "@ethereumjs/common": "^2.6.4",
+    "@ethereumjs/tx": "^3.5.1",
     "@types/express": "^4.17.13",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/morgan": "^1.9.3",

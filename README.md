@@ -29,3 +29,23 @@ For now, our IPFS is deployed at `http://20.118.216.88:7344`. This is the root U
   }
 }
 ```
+
+
+*Endpoint:* **`/ipfs/json`**
+
+*Method:* **`POST`**
+
+*Content Type:* **`application/json`**
+
+*Parameters:* Any JSON body is accepted. Use this endpoint to store metadata for collections/NFTs
+
+*Response:*
+
+```json
+{
+  "response": {
+    "itemURI": "http://...", // URI for item
+    "CID": "Q..." // Item identifier
+  }
+}
+```

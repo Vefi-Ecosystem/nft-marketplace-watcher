@@ -183,3 +183,60 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Bearer token`
     * required: `true`
+
+
+*Endpoint:* **`/api/nft/:network/byNetwork`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch all NFTs by network.
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+
+*Endpoint:* **`/api/nft/:network/:tokenId`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch an NFT using its ID & network.
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+  - tokenId
+    * in: path
+    * type: `number`
+    * description: `ID of NFT`
+    * required: `true`
+
+
+*Endpoint:* **`/api/nft/:network/:collectionId/byCollection`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch all NFTs within a collection.
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+  - collectionId
+    * in: path
+    * type: `string`
+    * description: `ID of NFT`
+    * required: `true`

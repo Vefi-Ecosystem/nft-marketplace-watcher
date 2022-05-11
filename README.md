@@ -141,3 +141,45 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Network slug`
     * required: `true`
+
+
+*Endpoint:* **`/api/collection/:network/:collectionId/byNetwork`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch by ID & network. `:collectionId` is path placeholder for collection ID.
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+  - collectionId
+    * in: `path`
+    * type: `string`
+    * description: `Contract address for collection`
+    * required: `true`
+
+
+*Endpoint:* **`/api/collection/:network/byOwner`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch all collections by owner and network.
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+  - Authorization
+    * in: `header`
+    * type: `string`
+    * description: `Bearer token`
+    * required: `true`

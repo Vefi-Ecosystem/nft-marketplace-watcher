@@ -261,3 +261,24 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Bearer token`
     * required: `true`
+
+
+*Endpoint:* **`/api/order/:network/:tokenId/byNFT`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch all orders by NFT
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+  - tokenId
+    * in: `path`
+    * type: `number`
+    * description: `Bearer token`
+    * required: `true`

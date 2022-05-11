@@ -1,3 +1,4 @@
+import { BigNumber } from '@ethersproject/bignumber';
 import { Interface } from '@ethersproject/abi';
 import { AddressZero } from '@ethersproject/constants';
 import { formatEther } from '@ethersproject/units';
@@ -5,32 +6,31 @@ import { find, map, pick, divide } from 'ramda';
 import { buildProvider, obtainERC20Decimals, obtainERC20Name } from '../utils';
 import { models } from '../db';
 import logger from '../logger';
+import deployableCollectionABI from '../assets/DeployableCollectionABI.json';
 import marketABI from '../assets/MarketplaceABI.json';
 import { sendNotification } from '../push';
 
-const abiInterface = new Interface(marketABI);
+const collectionAbiInterface = new Interface(deployableCollectionABI);
+const marketAbiInterface = new Interface(marketABI);
 
 export function handleCollectionDeploymentEvent(network: string, url: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
-        args: [_collection, timestamp, _name, _category, _symbol]
+        args: [_collection, collectionOwner, timestamp, _name, _category, _symbol]
       } = pick(['args'], parsedLog);
       const provider = buildProvider(url, undefined);
-      const data = abiInterface.getSighash('_collectionOwner()');
-      const ownerCallResult = await provider.call({ to: _collection, data });
-      const data2 = abiInterface.getSighash('_collectionURI()');
-      const collectionURICallResult = await provider.call({ to: _collection, data: data2 });
-      const [collectionOwner] = abiInterface.decodeFunctionResult('_collectionOwner()', ownerCallResult);
-      const [collectionURI] = abiInterface.decodeFunctionResult('_collectionURI()', collectionURICallResult);
+      const data = collectionAbiInterface.getSighash('_collectionURI()');
+      const collectionURICallResult = await provider.call({ to: _collection, data });
+      const [collectionURI] = collectionAbiInterface.decodeFunctionResult('_collectionURI()', collectionURICallResult);
       const storedCollection = await models.collection.addCollection({
         collectionName: _name,
         collectionOwner,
         collectionId: _collection,
         collectionSymbol: _symbol,
         collectionCategory: _category,
-        timeStamp: timestamp,
+        timeStamp: BigNumber.from(timestamp).toNumber(),
         collectionURI,
         network
       });
@@ -45,7 +45,7 @@ export function handleCollectionDeploymentEvent(network: string, url: string) {
 export function handleMintEvent(network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [_collection, _tokenId, timestamp, _tokenURI, owner]
       } = pick(['args'], parsedLog);
@@ -68,7 +68,7 @@ export function handleMintEvent(network: string) {
 export function handleMarketItemCreatedEvent(url: string, network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [_creator, _collection, _tokenId, _currency, _price, _marketItemId, timestamp]
       } = pick(['args'], parsedLog);
@@ -76,7 +76,10 @@ export function handleMarketItemCreatedEvent(url: string, network: string) {
       const readableAmount =
         _currency === AddressZero
           ? parseInt(formatEther(_price))
-          : divide(parseInt(_price), Math.pow(10, await obtainERC20Decimals(_currency, url, undefined)));
+          : divide(
+              parseInt(BigNumber.from(_price).toString()),
+              Math.pow(10, await obtainERC20Decimals(_currency, url, undefined))
+            );
 
       const storedSaleItem = await models.sale.addSaleItem({
         marketId: _marketItemId,
@@ -100,7 +103,7 @@ export function handleMarketItemCreatedEvent(url: string, network: string) {
 export function handleMarketItemCancelledEvent(network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [marketId, timestamp]
       } = pick(['args'], parsedLog);
@@ -119,7 +122,7 @@ export function handleMarketItemCancelledEvent(network: string) {
 export function handleSaleMadeEvent(url: string, network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [marketId, owner, _buyer, tokenId, , token, amount, timestamp]
       } = pick(['args'], parsedLog);
@@ -139,7 +142,10 @@ export function handleSaleMadeEvent(url: string, network: string) {
       const readableAmount =
         token === AddressZero
           ? parseInt(formatEther(amount))
-          : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(token, url, undefined)));
+          : divide(
+              parseInt(BigNumber.from(amount).toString()),
+              Math.pow(10, await obtainERC20Decimals(token, url, undefined))
+            );
 
       await sendNotification(
         owner,
@@ -156,7 +162,7 @@ export function handleSaleMadeEvent(url: string, network: string) {
 export function handleOrderMadeEvent(url: string, network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [creator, to, collection, tokenId, bidCurrency, amount, orderId]
       } = pick(['args'], parsedLog);
@@ -165,7 +171,10 @@ export function handleOrderMadeEvent(url: string, network: string) {
       const readableAmount =
         bidCurrency === AddressZero
           ? parseInt(formatEther(amount))
-          : divide(parseInt(amount), Math.pow(10, await obtainERC20Decimals(bidCurrency, url, undefined)));
+          : divide(
+              parseInt(BigNumber.from(amount).toString()),
+              Math.pow(10, await obtainERC20Decimals(bidCurrency, url, undefined))
+            );
 
       const storedOrder = await models.order.addOrder({
         creator,
@@ -194,7 +203,7 @@ export function handleOrderMadeEvent(url: string, network: string) {
 export function handleOrderEndedEvent(network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [orderId, timestamp]
       } = pick(['args'], parsedLog);
@@ -225,7 +234,7 @@ export function handleOrderEndedEvent(network: string) {
 export function handleOrderCancelledEvent(network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [orderId, timestamp]
       } = pick(['args'], parsedLog);
@@ -244,7 +253,7 @@ export function handleOrderCancelledEvent(network: string) {
 export function handleOrderRejectedEvent(network: string) {
   return async function (log: any) {
     try {
-      const parsedLog = abiInterface.parseLog(log);
+      const parsedLog = marketAbiInterface.parseLog(log);
       const {
         args: [orderId, timestamp]
       } = pick(['args'], parsedLog);

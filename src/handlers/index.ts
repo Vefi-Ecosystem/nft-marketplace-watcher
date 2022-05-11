@@ -185,7 +185,8 @@ export function handleOrderMadeEvent(url: string, network: string) {
         amount: readableAmount,
         tokenId,
         status: 'STARTED',
-        network
+        network,
+        timeStamp: divide(Date.now(), 1000)
       });
 
       await sendNotification(

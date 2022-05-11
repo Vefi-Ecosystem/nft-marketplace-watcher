@@ -48,6 +48,10 @@ export default class Order {
       network: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      timeStamp: {
+        type: DataTypes.INTEGER,
+        allowNull: false
       }
     });
   }

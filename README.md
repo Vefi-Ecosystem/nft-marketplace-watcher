@@ -126,3 +126,18 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
   }
 }
 ```
+
+
+*Endpoint:* **`/api/collection/:network/all`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch all collections by network. `:network` is path placeholder for network slug.
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`

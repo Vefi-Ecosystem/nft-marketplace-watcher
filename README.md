@@ -282,3 +282,94 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `number`
     * description: `Bearer token`
     * required: `true`
+
+
+*Endpoint:* **`/api/order/:network/countAll`**
+
+*Method:* **`GET`**
+
+*Description:* Count all orders per network.
+
+*Parameters:*
+  
+- network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+
+*Endpoint:* **`/api/order/:network/:tokenId/byNFT`**
+
+*Method:* **`GET`**
+
+*Description:* Fetch all orders by NFT
+
+*Parameters:*
+
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+  - tokenId
+    * in: `path`
+    * type: `number`
+    * description: `Bearer token`
+    * required: `true`
+
+
+*Endpoint:* **`/api/order/:network/:collection/countAllByCollection`**
+
+*Method:* **`GET`**
+
+*Description:* Count all orders per collection.
+
+*Parameters:*
+  
+- network
+    * in: `path`
+    * type: `string`
+    * description: `Network slug`
+    * required: `true`
+
+
+*Endpoint:* **`/api/push/subscribe`**
+
+*Method:* **`POST`**
+
+*Content Type:* `application/json`
+
+*Description:* Subscribe for push notification.
+
+*Parameters:* 
+- Authorization
+  * in: `header`
+  * type: `string`
+  * description: `Bearer token`
+  * required: `true`
+- endpoint
+  * in: `body`
+  * type: `string`
+  * description: `Push endpoint from front-end push registration`
+  * required: `true`
+
+- keys
+  * in: `body`
+  * type: `object`
+  * description: `Keys obtained during front-end push registration`
+
+
+*Endpoint:* **`/api/push/unsubscribe`**
+
+*Method:* **`DELETE`**
+
+*Description:* Cancels a push subscription
+
+*Parameters:* 
+- Authorization
+  * in: `header`
+  * type: `string`
+  * description: `Bearer token`
+  * required: `true`

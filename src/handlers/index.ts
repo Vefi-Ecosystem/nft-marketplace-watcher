@@ -147,10 +147,10 @@ export function handleSaleMadeEvent(url: string, network: string) {
               Math.pow(10, await obtainERC20Decimals(token, url, undefined))
             );
 
-      await sendNotification(
-        owner,
-        `Account ${_buyer} has purchased NFT with ID ${tokenId} for ${readableAmount} ${tokenName}`
-      );
+      await sendNotification(owner, {
+        title: 'Sale Made',
+        data: `Account ${_buyer} has purchased NFT with ID ${tokenId} for ${readableAmount} ${tokenName}`
+      });
 
       logger('Market item finalized, %d items affected', affectedRecord);
     } catch (error) {
@@ -189,10 +189,10 @@ export function handleOrderMadeEvent(url: string, network: string) {
         timeStamp: divide(Date.now(), 1000)
       });
 
-      await sendNotification(
-        bidCurrency,
-        `Account ${creator} is offering ${readableAmount} ${tokenName} for NFT with ID ${tokenId}`
-      );
+      await sendNotification(bidCurrency, {
+        title: 'New order',
+        data: `Account ${creator} is offering ${readableAmount} ${tokenName} for NFT with ID ${tokenId}`
+      });
 
       logger('New offer made: %s', JSON.stringify(storedOrder.toJSON(), undefined, 2));
     } catch (error) {

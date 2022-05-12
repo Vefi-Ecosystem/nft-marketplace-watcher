@@ -22,8 +22,23 @@ These models should give an overview of responses to expect in API calls.
 }
 ```
 
+**Collection**
 
-#### IPFS
+```json
+{
+  "collectionId": "0x...", // Collection ID
+  "collectionName": "Crypto Boys", // Collection Name
+  "collectionCategory": "Wearables", // Collection Category
+  "collectionSymbol": "CBOYS", 
+  "collectionURI": "http://....", // URI to collection metadata
+  "metadata": {
+    "name": "..."
+  }
+}
+```
+
+
+## IPFS
 
 
 For now, our IPFS is deployed at `http://20.118.216.88:7344`. This is the root URL before we get a domain. You can interact with the gateway using the following endpoints:
@@ -78,7 +93,7 @@ For now, our IPFS is deployed at `http://20.118.216.88:7344`. This is the root U
 
 
 
-#### API
+## API
 
 The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the API using the following endpoints:
 

@@ -178,6 +178,16 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * description: `Network slug`
     * required: `true`
 
+*Response:* 
+  
+  ```json
+  {
+    "result": [
+      // Array of collections
+    ]
+  }
+  ```
+
 
 *Endpoint:* **`/api/collection/:network/:collectionId/byNetwork`**
 
@@ -198,6 +208,16 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Contract address for collection`
     * required: `true`
+
+*Response:* 
+  
+  ```json
+  {
+    "result": {
+      // Refer to collection model
+    }
+  }
+  ```
 
 
 *Endpoint:* **`/api/collection/:network/byOwner`**
@@ -220,6 +240,16 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * description: `Bearer token`
     * required: `true`
 
+*Response:* 
+  
+  ```json
+  {
+    "result": [
+      // Array of collections
+    ]
+  }
+  ```
+
 
 *Endpoint:* **`/api/nft/:network/byNetwork`**
 
@@ -234,6 +264,16 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Network slug`
     * required: `true`
+
+*Response:* 
+  
+  ```json
+  {
+    "result": [
+      // Array of NFTs
+    ]
+  }
+  ```
 
 
 *Endpoint:* **`/api/nft/:network/:tokenId/byId`**
@@ -255,6 +295,16 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `number`
     * description: `ID of NFT`
     * required: `true`
+
+*Response:* 
+  
+  ```json
+  {
+    "result": {
+      // Refer to NFT model
+    }
+  }
+  ```
 
 
 *Endpoint:* **`/api/nft/:network/:collectionId/byCollection`**
@@ -278,6 +328,17 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * required: `true`
 
 
+*Response:* 
+  
+  ```json
+  {
+    "result": [
+      // Array of NFTs
+    ]
+  }
+  ```
+
+
 *Endpoint:* **`/api/nft/:network/byOwner`**
 
 *Method:* **`GET`**
@@ -297,6 +358,17 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Bearer token`
     * required: `true`
+
+
+*Response:* 
+  
+  ```json
+  {
+    "result": [
+      // Array of NFTs
+    ]
+  }
+  ```
 
 
 *Endpoint:* **`/api/order/:network/:tokenId/byNFT`**

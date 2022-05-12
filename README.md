@@ -2,6 +2,27 @@ Vefi NFT Marketplace IPFS & API Doc
 ====================================
 
 
+## Models
+
+These models should give an overview of responses to expect in API calls.
+
+**NFT**
+
+```json
+{
+  "tokenId": 1, // NFT ID
+  "collectionId": "0x...", // Collection that this NFT belongs to
+  "network": "smartchain", // Network this NFT was minted on
+  "timeStamp": 1245555689, // Timestamp this NFT was minted on. Note that to get an accurate date representation, you must multiply by 1000
+  "owner": "0x", // Owner of this NFT
+  "metadata": {
+    "name": "Crypto Boys",
+    ...
+  } //Metadata pinned to IPFS server
+}
+```
+
+
 #### IPFS
 
 
@@ -373,3 +394,36 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
   * type: `string`
   * description: `Bearer token`
   * required: `true`
+
+
+*Endpoint:* **`/api/sale/:network/allOngoing`**
+
+*Method:* **`GET`**
+
+*Description:* Gets all on-going sales by network.
+
+*Parameters:* 
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Bearer token`
+    * required: `true`
+
+
+*Endpoint:* **`/api/sale/:network/:collectionId/ongoing/byCollection`**
+
+*Method:* **`GET`**
+
+*Description:* Get all on-going sales by network and collection ID.
+
+*Parameters:* 
+  - network
+    * in: `path`
+    * type: `string`
+    * description: `Bearer token`
+    * required: `true`
+  - collectionId
+    * in: `path`
+    * type: `string`
+    * description: `Bearer token`
+    * required: `true`

@@ -8,7 +8,7 @@ export default class Account {
       accountId: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
       email: { type: DataTypes.STRING, allowNull: false, validate: { isEmail: { msg: 'Valid email required' } } },
-      imageURI: DataTypes.STRING
+      metadataURI: DataTypes.STRING
     });
   }
 

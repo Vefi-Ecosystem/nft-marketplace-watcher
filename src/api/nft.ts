@@ -47,9 +47,18 @@ export async function getAllNFTsByNetwork(req: ExpressRequestType, res: ExpressR
               let topBuyers: any[] = [];
 
               for (const order of val) {
-                const buyer = (await models.account.findAll())
-                  .map(acc => acc.toJSON())
-                  .find(acc => acc.accountId === order.creator);
+                const buyer = (
+                  await Promise.all(
+                    (
+                      await models.account.findAll()
+                    )
+                      .map(acc => acc.toJSON())
+                      .map(async acc => {
+                        const metadataResp = await axios.get(acc.metadataURI);
+                        return { ...acc, metadata: metadataResp.data };
+                      })
+                  )
+                ).find(acc => acc.accountId === order.creator);
                 topBuyers = [...topBuyers, buyer];
               }
               return Promise.resolve(topBuyers);
@@ -142,9 +151,18 @@ export async function findNFTsByCollectionId(req: ExpressRequestType, res: Expre
               let topBuyers: any[] = [];
 
               for (const order of val) {
-                const buyer = (await models.account.findAll())
-                  .map(acc => acc.toJSON())
-                  .find(acc => acc.accountId === order.creator);
+                const buyer = (
+                  await Promise.all(
+                    (
+                      await models.account.findAll()
+                    )
+                      .map(acc => acc.toJSON())
+                      .map(async acc => {
+                        const metadataResp = await axios.get(acc.metadataURI);
+                        return { ...acc, metadata: metadataResp.data };
+                      })
+                  )
+                ).find(acc => acc.accountId === order.creator);
                 topBuyers = [...topBuyers, buyer];
               }
               return Promise.resolve(topBuyers);

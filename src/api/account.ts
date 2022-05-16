@@ -1,8 +1,7 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
-import { filter, map, multiply, find, pick, any as anyMatch } from 'ramda';
+import { map, find, pick, any as anyMatch } from 'ramda';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import logger from '../logger';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
 import { jwtSecret } from '../env';
@@ -36,7 +35,10 @@ export async function getAccountFromRequest(req: ExpressRequestType & { accountI
 
     if (!exists) _throwErrorWithResponseCode('Account not found', 404);
 
-    const result = find(account => account.accountId === accountId, allAccounts);
+    let result = find(account => account.accountId === accountId, allAccounts);
+    const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });
+
+    result = { ...result, metadata: { ...metadata.data } };
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });

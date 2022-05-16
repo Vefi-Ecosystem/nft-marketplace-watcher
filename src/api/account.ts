@@ -36,9 +36,13 @@ export async function getAccountFromRequest(req: ExpressRequestType & { accountI
     if (!exists) _throwErrorWithResponseCode('Account not found', 404);
 
     let result = find(account => account.accountId === accountId, allAccounts);
-    const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });
 
-    result = { ...result, metadata: { ...metadata.data } };
+    if (!!result.metadataURI) {
+      const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });
+
+      result = { ...result, metadata: { ...metadata.data } };
+    }
+
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });

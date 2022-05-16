@@ -121,10 +121,10 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Email of account owner`
     * required: `true`
-  - imageURI
+  - metadataURI
     * in: `body`
     * type: `string`
-    * description: `Image of account owner`
+    * description: `Metadata of account owner`
     * required: `false`
   
 *Response:*

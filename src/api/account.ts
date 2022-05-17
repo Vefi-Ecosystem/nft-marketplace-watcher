@@ -3,7 +3,7 @@ import { map, find, pick, any as anyMatch } from 'ramda';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { models } from '../db';
-import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import { _resolveWithCodeAndResponse } from './common';
 import { jwtSecret } from '../env';
 
 export async function createAccount(req: ExpressRequestType, res: ExpressResponseType) {

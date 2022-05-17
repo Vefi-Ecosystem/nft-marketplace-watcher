@@ -32,7 +32,18 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     let result: any;
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());
     const { body } = pick(['body'], req);
+
+    const exists = anyMatch(account => account.accountId === body.accountId, allAccounts);
+
+    if (!exists) {
+      result = { accountId: body.account, name: null, email: null };
+
+      const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
+      return _resolveWithCodeAndResponse(res, 200, { ...result, token });
+    }
+
     result = find(account => account.accountId === body.accountId, allAccounts);
+
     const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
     return _resolveWithCodeAndResponse(res, 200, { ...result, token });
   } catch (error: any) {
@@ -40,15 +51,18 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
   }
 }
 
-export async function getAccountFromRequest(req: ExpressRequestType & { accountId: string }, res: ExpressResponseType) {
+export async function getAccountFromRequest(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
   try {
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());
-    const { accountId } = pick(['accountId'], req);
-    const exists = anyMatch(account => account.accoundId === accountId, allAccounts);
+    const { account } = pick(['account'], req);
+    const exists = anyMatch(acc => acc.accountId === account.accountId, allAccounts);
+    let result: any;
 
-    if (!exists) _throwErrorWithResponseCode('Account not found', 404);
-
-    let result = find(account => account.accountId === accountId, allAccounts);
+    if (!exists) {
+      result = { accountId: account.accountId, name: null, email: null };
+    } else {
+      result = find(acc => acc.accountId === account.accountId, allAccounts);
+    }
 
     if (!!result.metadataURI) {
       const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });

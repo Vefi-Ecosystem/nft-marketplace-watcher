@@ -9,7 +9,7 @@ import jwt, { JsonWebTokenError, TokenExpiredError, NotBeforeError } from 'jsonw
 import { jwtSecret } from '../../env';
 
 export default function (
-  req: ExpressRequestType & { accountId: string },
+  req: ExpressRequestType & { account: any },
   res: ExpressResponseType,
   next: ExpressNextType
 ): any {
@@ -37,7 +37,7 @@ export default function (
       _throwErrorWithResponseCode('Error occured', 401);
     }
 
-    req.accountId = authItem.accountId;
+    req.account = authItem;
     next();
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });

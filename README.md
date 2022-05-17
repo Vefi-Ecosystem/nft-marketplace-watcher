@@ -104,6 +104,8 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
 
 *Content-Type:* **`application/json`**
 
+*Description:* Create a new account.
+
 *Parameters:*
 
   - accountId
@@ -126,6 +128,33 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * type: `string`
     * description: `Metadata of account owner`
     * required: `false`
+  
+*Response:*
+
+```json
+{
+  "result": {
+    // User's info
+    "token": "5..." // Json web token
+  }
+}
+```
+
+*Endpoint:* **`/api/account/auth`**
+
+*Method:* **`POST`**
+
+*Content-Type:* **`application/json`**
+
+*Description:* Sign a new token with account ID.
+
+*Parameters:*
+
+  - accountId
+    * in: `body`
+    * type: `string`
+    * description: `Address of account owner`
+    * required: `true`
   
 *Response:*
 

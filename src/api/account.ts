@@ -27,6 +27,19 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
   }
 }
 
+export async function signAuthToken(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    let result: any;
+    const allAccounts = map(account => account.toJSON(), await models.account.findAll());
+    const { body } = pick(['body'], req);
+    result = find(account => account.accountId === body.accountId, allAccounts);
+    const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
+    return _resolveWithCodeAndResponse(res, 200, { ...result, token });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
 export async function getAccountFromRequest(req: ExpressRequestType & { accountId: string }, res: ExpressResponseType) {
   try {
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());

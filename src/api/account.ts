@@ -36,7 +36,7 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     const exists = anyMatch(account => account.accountId === body.accountId, allAccounts);
 
     if (!exists) {
-      result = { accountId: body.account, name: null, email: null };
+      result = { accountId: body.accountId, name: null, email: null };
 
       const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
       return _resolveWithCodeAndResponse(res, 200, { ...result, token });

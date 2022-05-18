@@ -100,7 +100,7 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
       result
     );
 
-    if (!!result) _throwErrorWithResponseCode('Asset not found', 404);
+    if (!result) _throwErrorWithResponseCode('Asset not found', 404);
 
     const { data: metadata } = await axios.get((result as any).collectionURI, {
       headers: { Accepts: 'application/json' }

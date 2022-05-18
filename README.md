@@ -305,7 +305,7 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
   ```
 
 
-*Endpoint:* **`/api/nft/:network/:tokenId/byId`**
+*Endpoint:* **`/api/nft/:network/:collectionId/:tokenId/byId`**
 
 *Method:* **`GET`**
 
@@ -323,6 +323,12 @@ The API for now, is deployed at `http://20.118.216.88:6008/`. Interact with the 
     * in: path
     * type: `number`
     * description: `ID of NFT`
+    * required: `true`
+
+  - collectionId
+    * in: path
+    * type: `string`
+    * description: `ID of collection this NFT belongs to`
     * required: `true`
 
 *Response:* 

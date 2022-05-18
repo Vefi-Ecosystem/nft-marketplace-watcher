@@ -5,7 +5,7 @@ import auth from '../auth';
 const router = Router();
 
 router.get('/:network/byNetwork', getAllNFTsByNetwork);
-router.get('/:network/:tokenId/byId', findNftByIdAndNetwork);
+router.get('/:network/:collectionId/:tokenId/byId', findNftByIdAndNetwork);
 router.get('/:network/:collectionId/byCollection', findNFTsByCollectionId);
 router.get('/:network/byOwner', <any>auth, <any>findNFTsByOwnerId);
 

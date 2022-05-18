@@ -95,9 +95,15 @@ export async function findNftByIdAndNetwork(req: ExpressRequestType, res: Expres
     const allNFTs = await models.nft.findAll();
     let result = map(nft => nft.toJSON(), allNFTs);
 
-    result = find(nft => nft.network === req.params.network && nft.tokenId === parseInt(req.params.tokenId), result);
+    result = find(
+      nft =>
+        nft.network === req.params.network &&
+        nft.tokenId === parseInt(req.params.tokenId) &&
+        nft.collectionId === req.params.collectionId,
+      result
+    );
 
-    if (!!result) _throwErrorWithResponseCode('Asset not found', 404);
+    if (!result) _throwErrorWithResponseCode('Asset not found', 404);
 
     const { data: metadata } = await axios.get((result as any).tokenURI, { headers: { Accepts: 'application/json' } });
     result = { ...(result as any), metadata };

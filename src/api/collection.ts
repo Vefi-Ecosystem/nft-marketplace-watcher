@@ -203,3 +203,111 @@ export async function findCollectionsByOwner(
     return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
   }
 }
+
+export async function findTopSellingCollections(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allCollections = await models.collection.findAll();
+    const { query, params } = pick(['query', 'params'], req);
+    let result = map(item => item.toJSON(), allCollections);
+
+    result = result.filter(i => i.network === params.network);
+    result = (
+      await Promise.all(
+        map(async item => {
+          return {
+            ...item,
+            sales: (await models.sale.findAll())
+              .map(i => i.toJSON())
+              .filter(val => val.collectionId === item.collectionId && val.status === 'ON_GOING')
+          };
+        }, result)
+      )
+    )
+      .filter(item => item.sales.length > 0)
+      .sort((a, b) => a.sales.length - b.sales.length);
+
+    result = await Promise.all(
+      result.map(collection => {
+        return new Promise(resolve => {
+          axios
+            .get(collection.collectionURI)
+            .then(res => {
+              resolve({
+                ...collection,
+                metadata: res.data
+              });
+            })
+            .catch(() => resolve(undefined));
+        });
+      })
+    );
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    } else {
+      result = result.slice(0, 10);
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
+export async function findCollectionsByNumberOfItems(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allCollections = await models.collection.findAll();
+    const { query, params } = pick(['query', 'params'], req);
+    let result = map(item => item.toJSON(), allCollections);
+    result = result.filter(i => i.network === params.network);
+
+    result = (
+      await Promise.all(
+        map(async item => {
+          return {
+            ...item,
+            nfts: (await models.nft.findAll())
+              .map(i => i.toJSON())
+              .filter(val => val.collectionId === item.collectionId)
+          };
+        }, result)
+      )
+    )
+      .filter(item => item.nfts.length > 0)
+      .sort((a, b) => a.nft.length - b.nfts.length);
+
+    result = await Promise.all(
+      result.map(collection => {
+        return new Promise(resolve => {
+          axios
+            .get(collection.collectionURI)
+            .then(res => {
+              resolve({
+                ...collection,
+                metadata: res.data
+              });
+            })
+            .catch(() => resolve(undefined));
+        });
+      })
+    );
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    } else {
+      result = result.slice(0, 10);
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}

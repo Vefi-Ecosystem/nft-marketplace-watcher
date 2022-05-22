@@ -1,5 +1,5 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
-import { filter, map, multiply, find, pick } from 'ramda';
+import { filter, map, multiply, find, pick, count } from 'ramda';
 import axios from 'axios';
 import logger from '../logger';
 import { models } from '../db';
@@ -237,6 +237,19 @@ export async function findNFTsByOwnerId(req: ExpressRequestType & { accountId: s
     } else {
       result = result.slice(0, 10);
     }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
+export async function countAllNFtsByCollection(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allNFTs = await models.nft.findAll();
+    let result: any = map(item => item.toJSON(), allNFTs);
+
+    result = count((r: any) => r.network === req.params.network && r.collectionId === req.params.collectionId, result);
 
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {

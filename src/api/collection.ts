@@ -278,7 +278,7 @@ export async function findCollectionsByNumberOfItems(req: ExpressRequestType, re
       )
     )
       .filter(item => item.nfts.length > 0)
-      .sort((a, b) => a.nft.length - b.nfts.length);
+      .sort((a, b) => a.nfts.length - b.nfts.length);
 
     result = await Promise.all(
       result.map(collection => {

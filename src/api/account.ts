@@ -16,7 +16,8 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
     if (exists) {
       result = find(account => account.accountId === body.accountId, allAccounts);
       const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
-      return _resolveWithCodeAndResponse(res, 200, { ...result, token });
+      result = { ...result, token };
+      return _resolveWithCodeAndResponse(res, 200, { result });
     }
 
     result = (await models.account.addAccount(body)).toJSON();

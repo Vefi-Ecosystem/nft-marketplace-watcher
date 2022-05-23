@@ -21,7 +21,8 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
 
     result = (await models.account.addAccount(body)).toJSON();
     const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
-    return _resolveWithCodeAndResponse(res, 201, { ...result, token });
+    result = { ...result, token };
+    return _resolveWithCodeAndResponse(res, 201, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }
@@ -39,13 +40,15 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
       result = { accountId: body.accountId, name: null, email: null };
 
       const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
-      return _resolveWithCodeAndResponse(res, 200, { ...result, token });
+      result = { ...result, token };
+      return _resolveWithCodeAndResponse(res, 200, { result });
     }
 
     result = find(account => account.accountId === body.accountId, allAccounts);
 
     const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
-    return _resolveWithCodeAndResponse(res, 200, { ...result, token });
+    result = { ...result, token };
+    return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }

@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { countAllNFtsByCollection, findNftByIdAndNetwork, findNFTsByCollectionId, findNFTsByOwnerId, getAllNFTsByNetwork } from '../nft';
+import {
+  countAllNFtsByCollection,
+  findNftByIdAndNetwork,
+  findNFTsByCollectionId,
+  findNFTsByOwnerId,
+  getAllNFTsByNetwork
+} from '../nft';
 import auth from '../auth';
 
 const router = Router();

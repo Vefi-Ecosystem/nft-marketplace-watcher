@@ -1,4 +1,4 @@
-import { bscProviderUrl, bscContractAddress } from './env';
+import { bscProviderUrl, bscContractAddress, polygonProviderUrl, polygonContractAddress } from './env';
 
 interface NetworkInterface {
   url?: string;
@@ -11,6 +11,11 @@ const chains: Array<NetworkInterface> = [
     url: bscProviderUrl,
     contractAddress: bscContractAddress,
     name: 'smartchain'
+  },
+  {
+    url: polygonProviderUrl,
+    contractAddress: polygonContractAddress,
+    name: 'polygon'
   }
 ];
 

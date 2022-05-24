@@ -11,9 +11,11 @@ export const databaseHost = process.env.DB_HOST;
 
 // Provider urls
 export const bscProviderUrl = process.env.BSC_PROVIDER_URL;
+export const polygonProviderUrl = process.env.POLYGON_PROVIDER_URL;
 
 // Contract addresses
 export const bscContractAddress = process.env.BSC_CONTRACT_ADDRESS;
+export const polygonContractAddress = process.env.POLYGON_CONTRACT_ADDRESS;
 
 // Push notifications
 export const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;

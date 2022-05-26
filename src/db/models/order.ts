@@ -27,7 +27,7 @@ export default class Order {
         allowNull: false
       },
       amount: {
-        type: DataTypes.STRING,
+        type: DataTypes.DOUBLE,
         allowNull: false
       },
       collection: {

@@ -31,7 +31,7 @@ export default class Sale {
         allowNull: false
       },
       price: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false
       },
       timeStamp: {

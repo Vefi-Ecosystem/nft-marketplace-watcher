@@ -22,7 +22,7 @@ export async function getAllOngoingSales(req: ExpressRequestType, res: ExpressRe
               .then(metadata => {
                 resolve({
                   ...item,
-                  nft: { ...nft, metadata }
+                  nft: { ...nft, metadata: metadata.data }
                 });
               })
               .catch(() => resolve(undefined));
@@ -70,7 +70,7 @@ export async function getAllOngoingSalesByCollection(req: ExpressRequestType, re
               .then(metadata => {
                 resolve({
                   ...item,
-                  nft: { ...nft, metadata }
+                  nft: { ...nft, metadata: metadata.data }
                 });
               })
               .catch(() => resolve(undefined));

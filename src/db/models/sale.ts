@@ -42,7 +42,7 @@ export default class Sale {
         type: DataTypes.ENUM('ON_GOING', 'FINALIZED', 'CANCELLED'),
         allowNull: false,
         validate: {
-          is: ['ON_GOING', 'FINALIZED', 'CANCELLED']
+          isIn: [['ON_GOING', 'FINALIZED', 'CANCELLED']]
         }
       },
       network: {

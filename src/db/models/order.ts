@@ -42,7 +42,7 @@ export default class Order {
         type: DataTypes.ENUM('STARTED', 'ACCEPTED', 'CANCELLED', 'REJECTED'),
         allowNull: false,
         validate: {
-          is: ['STARTED', 'ACCEPTED', 'CANCELLED', 'REJECTED']
+          isIn: [['STARTED', 'ACCEPTED', 'CANCELLED', 'REJECTED']]
         }
       },
       network: {

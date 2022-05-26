@@ -124,7 +124,7 @@ export function handleSaleMadeEvent(url: string, network: string) {
     try {
       const parsedLog = marketAbiInterface.parseLog(log);
       const {
-        args: [marketId, owner, _buyer, tokenId, , token, amount, timestamp]
+        args: [marketId, owner, _buyer, tokenId, collectionId, token, amount, timestamp]
       } = pick(['args'], parsedLog);
 
       const affectedRecord = await models.sale.updateSaleItem(
@@ -135,7 +135,7 @@ export function handleSaleMadeEvent(url: string, network: string) {
         {
           owner: _buyer
         },
-        { where: { tokenId, network } }
+        { where: { tokenId, network, collectionId } }
       );
 
       const tokenName = token === AddressZero ? 'Ethers' : await obtainERC20Name(token, url, undefined);
@@ -219,11 +219,14 @@ export function handleOrderEndedEvent(network: string) {
       const order = find(or => or.orderId === orderId && or.network === network, allOrders);
 
       const NFT = find(
-        (nft: any) => order.tokenId === nft.tokenId && nft.network === network,
+        (nft: any) => order.tokenId === nft.tokenId && nft.network === network && nft.collectionId === order.collection,
         map(nft => nft.toJSON(), await models.nft.findAll())
       );
 
-      await models.nft.updateNFT({ owner: order.creator }, { where: { tokenId: NFT.tokenId, network } });
+      await models.nft.updateNFT(
+        { owner: order.creator },
+        { where: { tokenId: NFT.tokenId, network, collectionId: NFT.collectionId } }
+      );
 
       logger('Order updated. Rows affected: %d', affectedCount);
     } catch (error) {

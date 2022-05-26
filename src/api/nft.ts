@@ -256,3 +256,37 @@ export async function countAllNFtsByCollection(req: ExpressRequestType, res: Exp
     return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
   }
 }
+
+export async function addNFTToFavorites(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
+  try {
+    const { params, account } = pick(['params', 'account'], req);
+    const like = await models.favorite.addToFavorites({
+      accountId: account.accountId,
+      network: params.network,
+      tokenId: parseInt(params.tokenId),
+      collectionId: params.collectionId
+    });
+    const result = like.toJSON();
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function getAllLikes() {}
+
+export async function removeNFTFromFavorites(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
+  try {
+    const { params, account } = pick(['params', 'account'], req);
+    const result = await models.favorite.removeFromFavorites({
+      where: {
+        accountId: account.accountId,
+        collectionId: params.collectionId,
+        tokenId: parseInt(params.tokenId)
+      }
+    });
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}

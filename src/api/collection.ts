@@ -74,6 +74,38 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
       }, result)
     );
 
+    result = await Promise.all(
+      result.map(item => {
+        return new Promise((resolve, reject) => {
+          models.order
+            .findAll()
+            .then(orders => orders.map(order => order.toJSON()))
+            .then(orders => orders.map(order => order.amount))
+            .then(orders =>
+              orders.filter(order => order.collection === item.collectionId && order.network === req.params.network)
+            )
+            .then(orders => {
+              models.sale
+                .findAll()
+                .then(sales => sales.map(sale => sale.toJSON()))
+                .then(sales => sales.map(sale => sale.price))
+                .then(sales =>
+                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === req.params.network)
+                )
+                .then(sales => {
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  resolve({
+                    ...item,
+                    floorPrice: allFigures[0]
+                  });
+                })
+                .catch(reject);
+            })
+            .catch(reject);
+        });
+      })
+    );
+
     if (!!req.query.page) {
       const page = parseInt(<string>req.query.page);
 
@@ -93,10 +125,11 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
 export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res: ExpressResponseType) {
   try {
     const allCollections = await models.collection.findAll();
-    let result = map(collection => collection.toJSON(), allCollections);
+    let result: any = map(collection => collection.toJSON(), allCollections);
 
     result = find(
-      collection => collection.network === req.params.network && collection.collectionId === req.params.collectionId,
+      (collection: any) =>
+        collection.network === req.params.network && collection.collectionId === req.params.collectionId,
       result
     );
 
@@ -105,7 +138,20 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
     const { data: metadata } = await axios.get((result as any).collectionURI, {
       headers: { Accepts: 'application/json' }
     });
+
     result = { ...(result as any), metadata };
+
+    const orderAmountsByCollection = (await models.order.findAll())
+      .map(order => order.toJSON())
+      .filter(order => order.collection === result.collectionId)
+      .map(order => order.amount);
+    const salePricesByCollection = (await models.sale.findAll())
+      .map(sale => sale.toJSON())
+      .filter(sale => sale.collectionId === result.collectionId)
+      .map(sale => sale.price);
+
+    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => a - b)[0];
+    result = { ...result, floorPrice };
 
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
@@ -188,6 +234,38 @@ export async function findCollectionsByOwner(
       }, result)
     );
 
+    result = await Promise.all(
+      result.map(item => {
+        return new Promise((resolve, reject) => {
+          models.order
+            .findAll()
+            .then(orders => orders.map(order => order.toJSON()))
+            .then(orders => orders.map(order => order.amount))
+            .then(orders =>
+              orders.filter(order => order.collection === item.collectionId && order.network === params.network)
+            )
+            .then(orders => {
+              models.sale
+                .findAll()
+                .then(sales => sales.map(sale => sale.toJSON()))
+                .then(sales => sales.map(sale => sale.price))
+                .then(sales =>
+                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
+                )
+                .then(sales => {
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  resolve({
+                    ...item,
+                    floorPrice: allFigures[0]
+                  });
+                })
+                .catch(reject);
+            })
+            .catch(reject);
+        });
+      })
+    );
+
     if (!!query.page) {
       const page = parseInt(<string>query.page);
 
@@ -242,6 +320,38 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
       })
     );
 
+    result = await Promise.all(
+      result.map(item => {
+        return new Promise((resolve, reject) => {
+          models.order
+            .findAll()
+            .then(orders => orders.map(order => order.toJSON()))
+            .then(orders => orders.map(order => order.amount))
+            .then(orders =>
+              orders.filter(order => order.collection === item.collectionId && order.network === params.network)
+            )
+            .then(orders => {
+              models.sale
+                .findAll()
+                .then(sales => sales.map(sale => sale.toJSON()))
+                .then(sales => sales.map(sale => sale.price))
+                .then(sales =>
+                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
+                )
+                .then(sales => {
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  resolve({
+                    ...item,
+                    floorPrice: allFigures[0]
+                  });
+                })
+                .catch(reject);
+            })
+            .catch(reject);
+        });
+      })
+    );
+
     if (!!query.page) {
       const page = parseInt(<string>query.page);
 
@@ -278,7 +388,7 @@ export async function findCollectionsByNumberOfItems(req: ExpressRequestType, re
       )
     )
       .filter(item => item.nfts.length > 0)
-      .sort((a, b) => a.nfts.length - b.nfts.length);
+      .sort((a, b) => b.nfts.length - a.nfts.length);
 
     result = await Promise.all(
       result.map(collection => {
@@ -292,6 +402,38 @@ export async function findCollectionsByNumberOfItems(req: ExpressRequestType, re
               });
             })
             .catch(() => resolve(undefined));
+        });
+      })
+    );
+
+    result = await Promise.all(
+      result.map(item => {
+        return new Promise((resolve, reject) => {
+          models.order
+            .findAll()
+            .then(orders => orders.map(order => order.toJSON()))
+            .then(orders => orders.map(order => order.amount))
+            .then(orders =>
+              orders.filter(order => order.collection === item.collectionId && order.network === params.network)
+            )
+            .then(orders => {
+              models.sale
+                .findAll()
+                .then(sales => sales.map(sale => sale.toJSON()))
+                .then(sales => sales.map(sale => sale.price))
+                .then(sales =>
+                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
+                )
+                .then(sales => {
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  resolve({
+                    ...item,
+                    floorPrice: allFigures[0]
+                  });
+                })
+                .catch(reject);
+            })
+            .catch(reject);
         });
       })
     );

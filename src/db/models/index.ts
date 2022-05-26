@@ -6,6 +6,7 @@ import NFT from './nft';
 import Order from './order';
 import Sale from './sale';
 import PushSubscription from './push';
+import Favorite from './favorite';
 
 const composeModels = (s: Sequelize) => ({
   account: new Account(s),
@@ -13,7 +14,8 @@ const composeModels = (s: Sequelize) => ({
   nft: new NFT(s),
   order: new Order(s),
   sale: new Sale(s),
-  push: new PushSubscription(s)
+  push: new PushSubscription(s),
+  favorite: new Favorite(s)
 });
 
 export const buildModels = R.nAry(1, composeModels);

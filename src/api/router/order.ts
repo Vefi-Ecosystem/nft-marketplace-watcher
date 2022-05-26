@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import auth from '../auth';
 import {
   countAllOrdersByCollection,
   countAllOrdersByNetwork,
   getAllOrdersByCollection,
-  getAllOrdersByNFT
+  getAllOrdersByNFT,
+  getWatchList
 } from '../order';
 
 const router = Router();
@@ -12,5 +14,6 @@ router.get('/:network/:tokenId/byNFT', getAllOrdersByNFT);
 router.get('/:network/:collection/byCollection', getAllOrdersByCollection);
 router.get('/:network/countAll', countAllOrdersByNetwork);
 router.get('/:network/:collection/countAllbyCollection', countAllOrdersByCollection);
+router.get('/:network/watchlist', <any>auth, <any>getWatchList);
 
 export default router;

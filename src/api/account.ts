@@ -76,6 +76,29 @@ export async function getAccountFromRequest(req: ExpressRequestType & { account:
 
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
-    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function getAccountById(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allAccounts = map(account => account.toJSON(), await models.account.findAll());
+    const exists = anyMatch(acc => acc.accountId === req.params.accountId, allAccounts);
+    let result: any;
+
+    if (!exists) {
+      result = { accountId: req.params.accountId, name: null, email: null };
+    } else {
+      result = find(acc => acc.accountId === req.params.accountId, allAccounts);
+    }
+    if (!!result.metadataURI) {
+      const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });
+
+      result = { ...result, metadata: { ...metadata.data } };
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }
 }

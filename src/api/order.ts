@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
 import { filter, map, multiply, pick, count } from 'ramda';
 import { models } from '../db';
@@ -83,6 +84,59 @@ export async function countAllOrdersByCollection(req: ExpressRequestType, res: E
     );
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
-    return _resolveWithCodeAndResponse(res, 200, { error: error.message });
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function getWatchList(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
+  try {
+    const allOrders = await models.order.findAll();
+    const allOrdersJSON = map(order => order.toJSON(), allOrders);
+    const { params, query, account } = pick(['params', 'query', 'account'], req);
+    let result: any = allOrdersJSON.filter(
+      order => order.creator === account.accountId && order.network === params.network
+    );
+
+    result = await Promise.all(
+      result.map((item: any) => {
+        return new Promise((resolve, reject) => {
+          models.nft
+            .findAll()
+            .then(nfts => {
+              const NFT = nfts
+                .map(nft => nft.toJSON())
+                .find(
+                  nft =>
+                    nft.tokenId === item.tokenId && nft.network === item.network && nft.collectionId === item.collection
+                );
+              axios
+                .get(NFT.tokenURI)
+                .then(res => {
+                  const metadata = res.data;
+                  resolve({
+                    ...item,
+                    nft: { ...NFT, metadata }
+                  });
+                })
+                .catch(() => resolve(undefined));
+            })
+            .catch(reject);
+        });
+      })
+    );
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    } else {
+      result = result.slice(0, 10);
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
   }
 }

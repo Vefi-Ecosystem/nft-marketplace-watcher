@@ -13,6 +13,6 @@ router.use('/collection', collectionRouter);
 router.use('/nft', nftRouter);
 router.use('/order', orderRouter);
 router.use('/push', pushRouter);
-router.use('sale', saleRouter);
+router.use('/sale', saleRouter);
 
 export default router;

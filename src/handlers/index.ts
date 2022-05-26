@@ -75,7 +75,7 @@ export function handleMarketItemCreatedEvent(url: string, network: string) {
 
       const readableAmount =
         _currency === AddressZero
-          ? parseInt(formatEther(_price))
+          ? parseFloat(formatEther(_price))
           : divide(
               parseInt(BigNumber.from(_price).toString()),
               Math.pow(10, await obtainERC20Decimals(_currency, url, undefined))
@@ -141,7 +141,7 @@ export function handleSaleMadeEvent(url: string, network: string) {
       const tokenName = token === AddressZero ? 'Ethers' : await obtainERC20Name(token, url, undefined);
       const readableAmount =
         token === AddressZero
-          ? parseInt(formatEther(amount))
+          ? parseFloat(formatEther(amount))
           : divide(
               parseInt(BigNumber.from(amount).toString()),
               Math.pow(10, await obtainERC20Decimals(token, url, undefined))
@@ -170,7 +170,7 @@ export function handleOrderMadeEvent(url: string, network: string) {
       const tokenName = bidCurrency === AddressZero ? 'Ethers' : await obtainERC20Name(bidCurrency, url, undefined);
       const readableAmount =
         bidCurrency === AddressZero
-          ? parseInt(formatEther(amount))
+          ? parseFloat(formatEther(amount))
           : divide(
               parseInt(BigNumber.from(amount).toString()),
               Math.pow(10, await obtainERC20Decimals(bidCurrency, url, undefined))

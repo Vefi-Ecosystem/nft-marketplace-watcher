@@ -371,7 +371,7 @@ export async function getTopSellingNFtsInCollection(req: ExpressRequestType, res
 
     const nfts: Array<any> = [];
 
-    for (const item of result) if (!nfts.includes(item)) nfts.push(item);
+    for (const item of result) if (!nfts.map(nft => nft.tokenId).includes(item.tokenId)) nfts.push(item);
 
     result = nfts;
 
@@ -435,7 +435,7 @@ export async function getNFTsInCollectionByPrice(req: ExpressRequestType, res: E
 
     const nfts: Array<any> = [];
 
-    for (const item of result) if (!nfts.includes(item)) nfts.push(item);
+    for (const item of result) if (!nfts.map(nft => nft.tokenId).includes(item.tokenId)) nfts.push(item);
 
     result = nfts;
 
@@ -485,7 +485,7 @@ export async function getNFTsWithOffersInCollection(req: ExpressRequestType, res
 
     const nfts: Array<any> = [];
 
-    for (const item of result) if (!nfts.includes(item)) nfts.push(item);
+    for (const item of result) if (!nfts.map(nft => nft.tokenId).includes(item.tokenId)) nfts.push(item);
 
     result = nfts;
 

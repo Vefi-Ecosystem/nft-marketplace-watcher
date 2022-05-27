@@ -39,8 +39,6 @@ export async function getAllOngoingSales(req: ExpressRequestType, res: ExpressRe
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -87,8 +85,6 @@ export async function getAllOngoingSalesByCollection(req: ExpressRequestType, re
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });

@@ -82,8 +82,6 @@ export async function getAllNFTsByNetwork(req: ExpressRequestType, res: ExpressR
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -186,14 +184,12 @@ export async function findNFTsByCollectionId(req: ExpressRequestType, res: Expre
       }, result)
     );
 
-    if (!!query.page) {
-      const page = parseInt(<string>query.page);
+    if (!!req.query.page) {
+      const page = parseInt(<string>req.query.page);
 
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -236,8 +232,6 @@ export async function findNFTsByOwnerId(req: ExpressRequestType & { accountId: s
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -339,6 +333,145 @@ export async function addNFTToFavorites(req: ExpressRequestType & { account: any
   }
 }
 
+export async function getTopSellingNFtsInCollection(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const { query, params } = pick(['query', 'params'], req);
+    const allSales = await models.sale.findAll();
+    const allSalesJSON = allSales.map(sale => sale.toJSON());
+    let result: any = allSalesJSON
+      .filter(
+        sale =>
+          sale.collectionId === params.collectionId && sale.network === params.network && sale.status === 'ON_GOING'
+      )
+      .sort((a, b) => b.price - a.price);
+
+    result = await Promise.all(
+      result.map(async (sale: any) => {
+        const nfts = (await models.nft.findAll()).map(nft => nft.toJSON());
+        const nft = nfts.find(
+          n => n.tokenId === sale.tokenId && n.collectionId === sale.collectionId && n.network === sale.network
+        );
+        const metadataRes = await axios.get(nft.metadataURI);
+        return { ...nft, metadata: metadataRes.data };
+      })
+    );
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
+export async function getNFTsInCollectionByPrice(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const { params, query } = pick(['params', 'query'], req);
+    const allOrders = await models.order.findAll();
+    const allAcceptedOrders = map(item => item.toJSON(), allOrders).filter(
+      order =>
+        order.status === 'ACCEPTED' && order.collection === params.collectionId && order.network === params.network
+    );
+
+    const allSales = await models.sale.findAll();
+    const allFinalizedSales = map(item => item.toJSON(), allSales).filter(
+      sale =>
+        sale.status === 'FINALIZED' && sale.collectionId === params.collectionId && sale.network === params.network
+    );
+
+    let result: any = [...allAcceptedOrders]
+      .map(o => ({
+        collectionId: o.collection,
+        price: o.amount,
+        network: o.network,
+        tokenId: o.tokenId
+      }))
+      .concat(
+        [...allFinalizedSales].map(s => ({
+          collectionId: s.collectionId,
+          price: s.price,
+          network: s.network,
+          tokenId: s.tokenId
+        }))
+      )
+      .sort((a, b) => b.price - a.price);
+
+    result = await Promise.all(
+      result.map(async (item: any) => {
+        const nfts = await models.nft.findAll();
+        const nftsJson = nfts.map(nft => nft.toJSON());
+        const n = nftsJson.find(
+          nft => nft.tokenId === item.tokenId && nft.collectionId === item.collectionId && nft.network === item.network
+        );
+        const metadataRes = await axios.get(n.metadataURI);
+        return { ...n, metadata: metadataRes.data };
+      })
+    );
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
+export async function getNFTsWithOffersInCollection(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const { params, query } = pick(['params', 'query'], req);
+    const allOrders = await models.order.findAll();
+    const allAcceptedOrders = map(item => item.toJSON(), allOrders).filter(
+      order =>
+        order.status === 'STARTED' && order.collection === params.collectionId && order.network === params.network
+    );
+
+    let result: any = [...allAcceptedOrders]
+      .map(o => ({
+        collectionId: o.collection,
+        price: o.amount,
+        network: o.network,
+        tokenId: o.tokenId
+      }))
+      .sort((a, b) => b.price - a.price);
+
+    result = await Promise.all(
+      result.map(async (item: any) => {
+        const nfts = await models.nft.findAll();
+        const nftsJson = nfts.map(nft => nft.toJSON());
+        const n = nftsJson.find(
+          nft => nft.tokenId === item.tokenId && nft.collectionId === item.collectionId && nft.network === item.network
+        );
+        const metadataRes = await axios.get(n.metadataURI);
+        return { ...n, metadata: metadataRes.data };
+      })
+    );
+
+    if (!!query.page) {
+      const page = parseInt(<string>query.page);
+
+      if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
+
+      result = result.slice(multiply(page - 1, 10), multiply(page, 10));
+    }
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
+  }
+}
+
 export async function getFavoriteNFTsOfUser(req: ExpressRequestType, res: ExpressResponseType) {
   try {
     const { params, query } = pick(['params', 'query'], req);
@@ -363,7 +496,7 @@ export async function getFavoriteNFTsOfUser(req: ExpressRequestType, res: Expres
                   return { ...spec, metadata };
                 })
                 .then(nft => {
-                  resolve({ ...item, nft });
+                  resolve(nft);
                 })
                 .catch(reject);
             });
@@ -377,8 +510,6 @@ export async function getFavoriteNFTsOfUser(req: ExpressRequestType, res: Expres
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });

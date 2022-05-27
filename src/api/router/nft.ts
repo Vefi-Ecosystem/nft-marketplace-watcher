@@ -10,7 +10,10 @@ import {
   getAllFavorites,
   getAllNFTsByNetwork,
   getFavoriteNFTsOfUser,
+  getNFTsInCollectionByPrice,
+  getNFTsWithOffersInCollection,
   getPricePerPeriod,
+  getTopSellingNFtsInCollection,
   removeNFTFromFavorites,
   view
 } from '../nft';
@@ -31,5 +34,8 @@ router.get('/:network/:collectionId/:tokenId/getAllFavorites', getAllFavorites);
 router.delete('/:network/:collectionId/:tokenId/removeFromFavorites', <any>auth, <any>removeNFTFromFavorites);
 router.post('/:network/:collectionId/:tokenId/view', <any>auth, view);
 router.get('/:network/:collectionId/:tokenId/countViews', countViews);
+router.get('/:network/:collectionId/topSelling', getTopSellingNFtsInCollection);
+router.get('/:network/:collectionId/price', getNFTsInCollectionByPrice);
+router.get('/:network/:collectionId/hasOffers', getNFTsWithOffersInCollection);
 
 export default router;

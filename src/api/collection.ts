@@ -112,8 +112,6 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -272,8 +270,6 @@ export async function findCollectionsByOwner(
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -358,8 +354,6 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -444,8 +438,6 @@ export async function findCollectionsByNumberOfItems(req: ExpressRequestType, re
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });

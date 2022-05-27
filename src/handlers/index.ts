@@ -195,8 +195,8 @@ export function handleOrderMadeEvent(url: string, network: string) {
       });
 
       logger('New offer made: %s', JSON.stringify(storedOrder.toJSON(), undefined, 2));
-    } catch (error) {
-      logger(error);
+    } catch (error: any) {
+      logger(error.message);
     }
   };
 }

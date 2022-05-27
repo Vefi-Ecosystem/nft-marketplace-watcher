@@ -21,8 +21,6 @@ export async function getAllOrdersByNFT(req: ExpressRequestType, res: ExpressRes
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -135,8 +133,6 @@ export async function getWatchList(req: ExpressRequestType & { account: any }, r
       if (!(page > 0)) _throwErrorWithResponseCode('Page number must be greater than 0', 400);
 
       result = result.slice(multiply(page - 1, 10), multiply(page, 10));
-    } else {
-      result = result.slice(0, 10);
     }
 
     return _resolveWithCodeAndResponse(res, 200, { result });

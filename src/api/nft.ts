@@ -351,7 +351,7 @@ export async function getTopSellingNFtsInCollection(req: ExpressRequestType, res
         const nft = nfts.find(
           n => n.tokenId === sale.tokenId && n.collectionId === sale.collectionId && n.network === sale.network
         );
-        const metadataRes = await axios.get(nft.metadataURI);
+        const metadataRes = await axios.get(nft.tokenURI);
         return { ...nft, metadata: metadataRes.data };
       })
     );
@@ -409,7 +409,7 @@ export async function getNFTsInCollectionByPrice(req: ExpressRequestType, res: E
         const n = nftsJson.find(
           nft => nft.tokenId === item.tokenId && nft.collectionId === item.collectionId && nft.network === item.network
         );
-        const metadataRes = await axios.get(n.metadataURI);
+        const metadataRes = await axios.get(n.tokenURI);
         return { ...n, metadata: metadataRes.data };
       })
     );
@@ -453,7 +453,7 @@ export async function getNFTsWithOffersInCollection(req: ExpressRequestType, res
         const n = nftsJson.find(
           nft => nft.tokenId === item.tokenId && nft.collectionId === item.collectionId && nft.network === item.network
         );
-        const metadataRes = await axios.get(n.metadataURI);
+        const metadataRes = await axios.get(n.tokenURI);
         return { ...n, metadata: metadataRes.data };
       })
     );

@@ -9,7 +9,7 @@ export async function getAllOrdersByNFT(req: ExpressRequestType, res: ExpressRes
     const allOrders = await models.order.findAll();
     const allOrdersJSON = map(order => order.toJSON(), allOrders);
     const { params, query } = pick(['params', 'query'], req);
-    let result = filter(x => x.tokenId === parseInt(params.tokenId) && x.network === params.network, allOrdersJSON);
+    let result = filter(x => x.tokenId === parseInt(params.tokenId) && x.network === params.network && x.collection === params.collectionId, allOrdersJSON);
 
     if (!!query.page) {
       const page = parseInt(<string>query.page);

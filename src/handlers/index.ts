@@ -186,7 +186,7 @@ export function handleOrderMadeEvent(url: string, network: string) {
         tokenId,
         status: 'STARTED',
         network,
-        timeStamp: divide(Date.now(), 1000)
+        timeStamp: Math.floor(divide(Date.now(), 1000))
       });
 
       await sendNotification(bidCurrency, {
@@ -195,8 +195,8 @@ export function handleOrderMadeEvent(url: string, network: string) {
       });
 
       logger('New offer made: %s', JSON.stringify(storedOrder.toJSON(), undefined, 2));
-    } catch (error: any) {
-      logger(error.message);
+    } catch (error) {
+      logger(error);
     }
   };
 }

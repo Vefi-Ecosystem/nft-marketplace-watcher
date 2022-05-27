@@ -320,13 +320,26 @@ export async function checkItemInSale(req: ExpressRequestType, res: ExpressRespo
 export async function addNFTToFavorites(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
   try {
     const { params, account } = pick(['params', 'account'], req);
-    const like = await models.favorite.addToFavorites({
-      accountId: account.accountId,
-      network: params.network,
-      tokenId: parseInt(params.tokenId),
-      collectionId: params.collectionId
-    });
-    const result = like.toJSON();
+    const favorites = await models.favorite.findAll();
+    const fave = favorites
+      .map(f => f.toJSON())
+      .find(
+        f =>
+          f.accountId === account.accountId &&
+          f.network === params.network &&
+          f.tokenId === parseInt(params.tokenId) &&
+          f.collectionId === params.collectionId
+      );
+    const result = !!fave
+      ? fave
+      : (
+          await models.favorite.addToFavorites({
+            accountId: account.accountId,
+            network: params.network,
+            tokenId: parseInt(params.tokenId),
+            collectionId: params.collectionId
+          })
+        ).toJSON();
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
@@ -355,6 +368,12 @@ export async function getTopSellingNFtsInCollection(req: ExpressRequestType, res
         return { ...nft, metadata: metadataRes.data };
       })
     );
+
+    const nfts: Array<any> = [];
+
+    for (const item of result) if (!nfts.includes(item)) nfts.push(item);
+
+    result = nfts;
 
     if (!!query.page) {
       const page = parseInt(<string>query.page);
@@ -414,6 +433,12 @@ export async function getNFTsInCollectionByPrice(req: ExpressRequestType, res: E
       })
     );
 
+    const nfts: Array<any> = [];
+
+    for (const item of result) if (!nfts.includes(item)) nfts.push(item);
+
+    result = nfts;
+
     if (!!query.page) {
       const page = parseInt(<string>query.page);
 
@@ -457,6 +482,12 @@ export async function getNFTsWithOffersInCollection(req: ExpressRequestType, res
         return { ...n, metadata: metadataRes.data };
       })
     );
+
+    const nfts: Array<any> = [];
+
+    for (const item of result) if (!nfts.includes(item)) nfts.push(item);
+
+    result = nfts;
 
     if (!!query.page) {
       const page = parseInt(<string>query.page);

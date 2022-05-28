@@ -24,7 +24,7 @@ const router = Router();
 router.get('/:network/byNetwork', getAllNFTsByNetwork);
 router.get('/:network/:collectionId/:tokenId/byId', findNftByIdAndNetwork);
 router.get('/:network/:collectionId/byCollection', findNFTsByCollectionId);
-router.get('/:network/byOwner', <any>auth, <any>findNFTsByOwnerId);
+router.get('/:network/:accountId/byOwner', findNFTsByOwnerId);
 router.get('/:network/:collectionId/count', countAllNFtsByCollection);
 router.get('/:network/:collectionId/:tokenId/prices', getPricePerPeriod);
 router.get('/:network/:collectionId/:tokenId/isOnSale', checkItemInSale);

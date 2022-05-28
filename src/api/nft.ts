@@ -198,15 +198,15 @@ export async function findNFTsByCollectionId(req: ExpressRequestType, res: Expre
   }
 }
 
-export async function findNFTsByOwnerId(req: ExpressRequestType & { accountId: string }, res: ExpressResponseType) {
+export async function findNFTsByOwnerId(req: ExpressRequestType, res: ExpressResponseType) {
   try {
     const allNFTs = await models.nft.findAll();
 
     let result = map(nft => nft.toJSON(), allNFTs);
 
-    const { params, query, accountId } = pick(['params', 'query', 'accountId'], req);
+    const { params, query } = pick(['params', 'query'], req);
 
-    result = filter(nft => nft.owner === accountId && nft.network === params.network, result).map(nft => {
+    result = filter(nft => nft.owner === params.accountId && nft.network === params.network, result).map(nft => {
       return new Promise(resolve => {
         axios
           .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })

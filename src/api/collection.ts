@@ -157,19 +157,16 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
   }
 }
 
-export async function findCollectionsByOwner(
-  req: ExpressRequestType & { accountId: string },
-  res: ExpressResponseType
-) {
+export async function findCollectionsByOwner(req: ExpressRequestType, res: ExpressResponseType) {
   try {
     const allCollections = await models.collection.findAll();
 
     let result = map(collection => collection.toJSON(), allCollections);
 
-    const { params, query, accountId } = pick(['params', 'query', 'accountId'], req);
+    const { params, query } = pick(['params', 'query'], req);
 
     result = filter(
-      collection => collection.collectionOwner === accountId && collection.network === params.network,
+      collection => collection.collectionOwner === params.accountId && collection.network === params.network,
       result
     ).map(collection => {
       return new Promise(resolve => {

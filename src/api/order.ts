@@ -96,7 +96,7 @@ export async function getWatchList(req: ExpressRequestType & { account: any }, r
     const allOrdersJSON = map(order => order.toJSON(), allOrders);
     const { params, query, account } = pick(['params', 'query', 'account'], req);
     let result: any = allOrdersJSON.filter(
-      order => order.creator === account.accountId && order.network === params.network
+      order => order.creator === account.accountId && order.network === params.network && order.status === 'STARTED'
     );
 
     result = await Promise.all(
@@ -126,6 +126,18 @@ export async function getWatchList(req: ExpressRequestType & { account: any }, r
         });
       })
     );
+
+    const necessaryItems: Array<any> = [];
+
+    for (const item of result)
+      if (
+        !necessaryItems
+          .map((n: any) => n.nft)
+          .find(n => n.collectionId === item.nft.collectionId && n.tokenId === item.nft.tokenId)
+      )
+        necessaryItems.push(item);
+
+    result = necessaryItems;
 
     if (!!query.page) {
       const page = parseInt(<string>query.page);

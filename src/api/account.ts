@@ -102,3 +102,13 @@ export async function getAccountById(req: ExpressRequestType, res: ExpressRespon
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }
 }
+
+export async function updateAccount(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
+  try {
+    const { params, body, account } = pick(['params', 'body', 'account'], req);
+    const result = await models.account.updateAccount(body, { where: { accountId: account.accountId } });
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}

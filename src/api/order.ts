@@ -3,6 +3,11 @@ import type { Request as ExpressRequestType, Response as ExpressResponseType } f
 import { filter, map, multiply, pick, count } from 'ramda';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import https from 'https';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 export async function getAllOrdersByNFT(req: ExpressRequestType, res: ExpressResponseType) {
   try {
@@ -115,7 +120,7 @@ export async function getWatchList(req: ExpressRequestType & { account: any }, r
                     nft.tokenId === item.tokenId && nft.network === item.network && nft.collectionId === item.collection
                 );
               axios
-                .get(NFT.tokenURI)
+                .get(NFT.tokenURI, { httpsAgent })
                 .then(res => {
                   const metadata = res.data;
                   resolve({

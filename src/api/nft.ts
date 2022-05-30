@@ -6,6 +6,11 @@ import logger from '../logger';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
 import { redisViewsKey } from '../constants';
+import https from 'https';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 export async function getAllNFTsByNetwork(req: ExpressRequestType, res: ExpressResponseType) {
   try {
@@ -18,7 +23,7 @@ export async function getAllNFTsByNetwork(req: ExpressRequestType, res: ExpressR
     result = map(nft => {
       return new Promise(resolve => {
         axios
-          .get(nft.tokenURI)
+          .get(nft.tokenURI, { httpsAgent })
           .then(resp => {
             logger('Now querying: %s', nft.tokenURI);
 
@@ -64,7 +69,7 @@ export async function findNftByIdAndNetwork(req: ExpressRequestType, res: Expres
 
     if (!result) _throwErrorWithResponseCode('Asset not found', 404);
 
-    const { data: metadata } = await axios.get((result as any).tokenURI, { headers: { Accepts: 'application/json' } });
+    const { data: metadata } = await axios.get((result as any).tokenURI, { httpsAgent });
     result = { ...(result as any), metadata };
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -84,7 +89,7 @@ export async function findNFTsByCollectionId(req: ExpressRequestType, res: Expre
       nft => {
         return new Promise(resolve => {
           axios
-            .get(nft.tokenURI)
+            .get(nft.tokenURI, { httpsAgent })
             .then(resp => {
               logger('Now querying: %s', nft.tokenURI);
 
@@ -127,7 +132,7 @@ export async function findNFTsByOwnerId(req: ExpressRequestType, res: ExpressRes
     result = filter(nft => nft.owner === params.accountId && nft.network === params.network, result).map(nft => {
       return new Promise(resolve => {
         axios
-          .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
+          .get(nft.tokenURI, { httpsAgent })
           .then(resp => {
             logger('Now querying: %s', nft.tokenURI);
 
@@ -282,7 +287,7 @@ export async function getTopSellingNFtsInCollection(req: ExpressRequestType, res
         const nft = nfts.find(
           n => n.tokenId === sale.tokenId && n.collectionId === sale.collectionId && n.network === sale.network
         );
-        const metadataRes = await axios.get(nft.tokenURI);
+        const metadataRes = await axios.get(nft.tokenURI, { httpsAgent });
         return { ...nft, metadata: metadataRes.data };
       })
     );
@@ -346,7 +351,7 @@ export async function getNFTsInCollectionByPrice(req: ExpressRequestType, res: E
         const n = nftsJson.find(
           nft => nft.tokenId === item.tokenId && nft.collectionId === item.collectionId && nft.network === item.network
         );
-        const metadataRes = await axios.get(n.tokenURI);
+        const metadataRes = await axios.get(n.tokenURI, { httpsAgent });
         return { ...n, metadata: metadataRes.data };
       })
     );
@@ -396,7 +401,7 @@ export async function getNFTsWithOffersInCollection(req: ExpressRequestType, res
         const n = nftsJson.find(
           nft => nft.tokenId === item.tokenId && nft.collectionId === item.collectionId && nft.network === item.network
         );
-        const metadataRes = await axios.get(n.tokenURI);
+        const metadataRes = await axios.get(n.tokenURI, { httpsAgent });
         return { ...n, metadata: metadataRes.data };
       })
     );
@@ -439,7 +444,7 @@ export async function getFavoriteNFTsOfUser(req: ExpressRequestType, res: Expres
                 s => s.collectionId === item.collectionId && s.network === item.network && s.tokenId === item.tokenId
               );
               axios
-                .get(spec.tokenURI)
+                .get(spec.tokenURI, { httpsAgent })
                 .then(res => {
                   const metadata = res.data;
                   return { ...spec, metadata };

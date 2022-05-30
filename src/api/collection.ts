@@ -16,7 +16,7 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
     result = map(collection => {
       return new Promise(resolve => {
         axios
-          .get(collection.collectionURI, { headers: { Accepts: 'application/json' } })
+          .get(collection.collectionURI)
           .then(resp => {
             logger('Now querying: %s', collection.collectionURI);
 
@@ -32,47 +32,6 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
     }, result);
 
     result = await Promise.all(result);
-    result = await Promise.all(
-      map(x => {
-        return new Promise((resolve, reject) => {
-          models.order
-            .findAll()
-            .then(m =>
-              m
-                .map(order => order.toJSON())
-                .filter(order => order.network === req.params.network && order.collection === x.collection)
-                .sort((a, b) => a.amount - b.amount)
-            )
-            .then(async val => {
-              let topBuyers: any[] = [];
-
-              for (const order of val) {
-                const buyer = (
-                  await Promise.all(
-                    (
-                      await models.account.findAll()
-                    )
-                      .map(acc => acc.toJSON())
-                      .map(async acc => {
-                        const metadataResp = await axios.get(acc.metadataURI);
-                        return { ...acc, metadata: metadataResp.data };
-                      })
-                  )
-                ).find(acc => acc.accountId === order.creator);
-                topBuyers = [...topBuyers, buyer];
-              }
-              return Promise.resolve(topBuyers);
-            })
-            .then(topBuyers => {
-              resolve({
-                ...x,
-                topBuyers
-              });
-            })
-            .catch(reject);
-        });
-      }, result)
-    );
 
     result = await Promise.all(
       result.map(item => {
@@ -203,47 +162,6 @@ export async function findCollectionsByOwner(req: ExpressRequestType, res: Expre
     });
 
     result = await Promise.all(result);
-    result = await Promise.all(
-      map(x => {
-        return new Promise((resolve, reject) => {
-          models.order
-            .findAll()
-            .then(m =>
-              m
-                .map(order => order.toJSON())
-                .filter(order => order.network === req.params.network && order.collection === x.collection)
-                .sort((a, b) => a.amount - b.amount)
-            )
-            .then(async val => {
-              let topBuyers: any[] = [];
-
-              for (const order of val) {
-                const buyer = (
-                  await Promise.all(
-                    (
-                      await models.account.findAll()
-                    )
-                      .map(acc => acc.toJSON())
-                      .map(async acc => {
-                        const metadataResp = await axios.get(acc.metadataURI);
-                        return { ...acc, metadata: metadataResp.data };
-                      })
-                  )
-                ).find(acc => acc.accountId === order.creator);
-                topBuyers = [...topBuyers, buyer];
-              }
-              return Promise.resolve(topBuyers);
-            })
-            .then(topBuyers => {
-              resolve({
-                ...x,
-                topBuyers
-              });
-            })
-            .catch(reject);
-        });
-      }, result)
-    );
 
     result = await Promise.all(
       result.map(item => {
@@ -251,18 +169,18 @@ export async function findCollectionsByOwner(req: ExpressRequestType, res: Expre
           models.order
             .findAll()
             .then(orders => orders.map(order => order.toJSON()))
-            .then(orders => orders.map(order => order.amount))
             .then(orders =>
               orders.filter(order => order.collection === item.collectionId && order.network === params.network)
             )
+            .then(orders => orders.map(order => order.amount))
             .then(orders => {
               models.sale
                 .findAll()
                 .then(sales => sales.map(sale => sale.toJSON()))
-                .then(sales => sales.map(sale => sale.price))
                 .then(sales =>
                   sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
                 )
+                .then(sales => sales.map(sale => sale.price))
                 .then(sales => {
                   const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
                   resolve({
@@ -343,10 +261,11 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
               models.sale
                 .findAll()
                 .then(sales => sales.map(sale => sale.toJSON()))
-                .then(sales => sales.map(sale => sale.price))
+
                 .then(sales =>
                   sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
                 )
+                .then(sales => sales.map(sale => sale.price))
                 .then(sales => {
                   const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
                   resolve({
@@ -419,18 +338,20 @@ export async function findCollectionsByNumberOfItems(req: ExpressRequestType, re
           models.order
             .findAll()
             .then(orders => orders.map(order => order.toJSON()))
-            .then(orders => orders.map(order => order.amount))
+
             .then(orders =>
               orders.filter(order => order.collection === item.collectionId && order.network === params.network)
             )
+            .then(orders => orders.map(order => order.amount))
             .then(orders => {
               models.sale
                 .findAll()
                 .then(sales => sales.map(sale => sale.toJSON()))
-                .then(sales => sales.map(sale => sale.price))
+
                 .then(sales =>
                   sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
                 )
+                .then(sales => sales.map(sale => sale.price))
                 .then(sales => {
                   const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
                   resolve({

@@ -80,20 +80,30 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
           models.order
             .findAll()
             .then(orders => orders.map(order => order.toJSON()))
-            .then(orders => orders.map(order => order.amount))
             .then(orders =>
-              orders.filter(order => order.collection === item.collectionId && order.network === req.params.network)
+              orders.filter(
+                order =>
+                  order.collection === item.collectionId &&
+                  order.network === req.params.network &&
+                  order.status === 'ACCEPTED'
+              )
             )
+            .then(orders => orders.map(order => order.amount))
             .then(orders => {
               models.sale
                 .findAll()
                 .then(sales => sales.map(sale => sale.toJSON()))
-                .then(sales => sales.map(sale => sale.price))
                 .then(sales =>
-                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === req.params.network)
+                  sales.filter(
+                    sale =>
+                      sale.collectionId === item.collectionId &&
+                      sale.network === req.params.network &&
+                      sale.status === 'FINALIZED'
+                  )
                 )
+                .then(sales => sales.map(sale => sale.price))
                 .then(sales => {
-                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => b - a);
                   resolve({
                     ...item,
                     floorPrice: allFigures[0]
@@ -141,14 +151,20 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
 
     const orderAmountsByCollection = (await models.order.findAll())
       .map(order => order.toJSON())
-      .filter(order => order.collection === result.collectionId)
+      .filter(
+        order =>
+          order.collection === result.collectionId && order.network === result.network && order.status === 'ACCEPTED'
+      )
       .map(order => order.amount);
     const salePricesByCollection = (await models.sale.findAll())
       .map(sale => sale.toJSON())
-      .filter(sale => sale.collectionId === result.collectionId)
+      .filter(
+        sale =>
+          sale.collectionId === result.collectionId && sale.network === result.network && sale.STATUS === 'FINALIZED'
+      )
       .map(sale => sale.price);
 
-    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => a - b)[0];
+    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => b - a)[0];
     result = { ...result, floorPrice };
 
     return _resolveWithCodeAndResponse(res, 200, { result });

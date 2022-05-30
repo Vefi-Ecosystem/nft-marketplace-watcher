@@ -5,6 +5,11 @@ import jwt from 'jsonwebtoken';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse } from './common';
 import { jwtSecret } from '../env';
+import https from 'https';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 export async function createAccount(req: ExpressRequestType, res: ExpressResponseType) {
   try {
@@ -69,7 +74,7 @@ export async function getAccountFromRequest(req: ExpressRequestType & { account:
     }
 
     if (!!result.metadataURI) {
-      const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });
+      const metadata = await axios.get(result.metadataURI, { httpsAgent });
 
       result = { ...result, metadata: { ...metadata.data } };
     }
@@ -92,7 +97,7 @@ export async function getAccountById(req: ExpressRequestType, res: ExpressRespon
       result = find(acc => acc.accountId === req.params.accountId, allAccounts);
     }
     if (!!result.metadataURI) {
-      const metadata = await axios.get(result.metadataURI, { headers: { Accepts: 'application/json' } });
+      const metadata = await axios.get(result.metadataURI, { httpsAgent });
 
       result = { ...result, metadata: { ...metadata.data } };
     }

@@ -4,6 +4,11 @@ import axios from 'axios';
 import logger from '../logger';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import https from 'https';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: ExpressResponseType) {
   try {
@@ -16,7 +21,7 @@ export async function getAllCollectionsByNetwork(req: ExpressRequestType, res: E
     result = map(collection => {
       return new Promise(resolve => {
         axios
-          .get(collection.collectionURI)
+          .get(collection.collectionURI, { httpsAgent })
           .then(resp => {
             logger('Now querying: %s', collection.collectionURI);
 
@@ -102,9 +107,7 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
 
     if (!result) _throwErrorWithResponseCode('Asset not found', 404);
 
-    const { data: metadata } = await axios.get((result as any).collectionURI, {
-      headers: { Accepts: 'application/json' }
-    });
+    const { data: metadata } = await axios.get((result as any).collectionURI, { httpsAgent });
 
     result = { ...(result as any), metadata };
 
@@ -146,7 +149,7 @@ export async function findCollectionsByOwner(req: ExpressRequestType, res: Expre
     ).map(collection => {
       return new Promise(resolve => {
         axios
-          .get(collection.collectionURI, { headers: { Accepts: 'application/json' } })
+          .get(collection.collectionURI, { httpsAgent })
           .then(resp => {
             logger('Now querying: %s', collection.collectionURI);
 
@@ -235,7 +238,7 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
       result.map(collection => {
         return new Promise(resolve => {
           axios
-            .get(collection.collectionURI)
+            .get(collection.collectionURI, { httpsAgent })
             .then(res => {
               resolve({
                 ...collection,
@@ -320,7 +323,7 @@ export async function findCollectionsByNumberOfItems(req: ExpressRequestType, re
       result.map(collection => {
         return new Promise(resolve => {
           axios
-            .get(collection.collectionURI)
+            .get(collection.collectionURI, { httpsAgent })
             .then(res => {
               resolve({
                 ...collection,

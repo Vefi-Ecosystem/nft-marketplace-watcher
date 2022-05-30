@@ -17,7 +17,14 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
   next();
 });
+
 app.use('/api', router);
+
+app.get('/', (req, res) => {
+  return res.status(200).json({
+    status: 'HEALTHY'
+  });
+});
 
 app.listen(port, () => {
   logger('App is running on: %d', port);

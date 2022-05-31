@@ -258,7 +258,12 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
             .then(orders => orders.map(order => order.toJSON()))
             .then(orders => orders.map(order => order.amount))
             .then(orders =>
-              orders.filter(order => order.collection === item.collectionId && order.network === params.network)
+              orders.filter(
+                order =>
+                  order.collection === item.collectionId &&
+                  order.network === params.network &&
+                  order.status === 'ACCEPTED'
+              )
             )
             .then(orders => {
               models.sale
@@ -266,7 +271,12 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
                 .then(sales => sales.map(sale => sale.toJSON()))
 
                 .then(sales =>
-                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
+                  sales.filter(
+                    sale =>
+                      sale.collectionId === item.collectionId &&
+                      sale.network === params.network &&
+                      sale.status === 'FINALIZED'
+                  )
                 )
                 .then(sales => sales.map(sale => sale.price))
                 .then(sales => {

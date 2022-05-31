@@ -122,11 +122,11 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
       .map(sale => sale.toJSON())
       .filter(
         sale =>
-          sale.collectionId === result.collectionId && sale.network === result.network && sale.STATUS === 'FINALIZED'
+          sale.collectionId === result.collectionId && sale.network === result.network && sale.status === 'FINALIZED'
       )
       .map(sale => sale.price);
 
-    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => a - b)[0];
+    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => b - a)[0];
     result = { ...result, floorPrice };
 
     return _resolveWithCodeAndResponse(res, 200, { result });
@@ -173,7 +173,12 @@ export async function findCollectionsByOwner(req: ExpressRequestType, res: Expre
             .findAll()
             .then(orders => orders.map(order => order.toJSON()))
             .then(orders =>
-              orders.filter(order => order.collection === item.collectionId && order.network === params.network)
+              orders.filter(
+                order =>
+                  order.collection === item.collectionId &&
+                  order.network === params.network &&
+                  order.status === 'ACCEPTED'
+              )
             )
             .then(orders => orders.map(order => order.amount))
             .then(orders => {
@@ -181,11 +186,16 @@ export async function findCollectionsByOwner(req: ExpressRequestType, res: Expre
                 .findAll()
                 .then(sales => sales.map(sale => sale.toJSON()))
                 .then(sales =>
-                  sales.filter(sale => sale.collectionId === item.collectionId && sale.network === params.network)
+                  sales.filter(
+                    sale =>
+                      sale.collectionId === item.collectionId &&
+                      sale.network === params.network &&
+                      sale.status === 'FINALIZED'
+                  )
                 )
                 .then(sales => sales.map(sale => sale.price))
                 .then(sales => {
-                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => b - a);
                   resolve({
                     ...item,
                     floorPrice: allFigures[0]

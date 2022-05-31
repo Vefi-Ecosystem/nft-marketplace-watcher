@@ -126,7 +126,7 @@ export async function findCollectionByIdAndNetwork(req: ExpressRequestType, res:
       )
       .map(sale => sale.price);
 
-    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => b - a)[0];
+    const floorPrice = [...orderAmountsByCollection].concat([...salePricesByCollection]).sort((a, b) => a - b)[0];
     result = { ...result, floorPrice };
 
     return _resolveWithCodeAndResponse(res, 200, { result });

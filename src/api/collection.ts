@@ -290,7 +290,7 @@ export async function findTopSellingCollections(req: ExpressRequestType, res: Ex
                 )
                 .then(sales => sales.map(sale => sale.price))
                 .then(sales => {
-                  const allFigures = [...orders].concat([...sales]).sort((a, b) => a - b);
+                  const allFigures = [...orders].concat([...sales]).sort((a, b) => b - a);
                   resolve({
                     ...item,
                     floorPrice: allFigures[0]

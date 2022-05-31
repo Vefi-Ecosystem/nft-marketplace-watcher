@@ -3,6 +3,11 @@ import { count, filter, map, multiply, pick } from 'ramda';
 import axios from 'axios';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import https from 'https';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 export async function getAllOngoingSales(req: ExpressRequestType, res: ExpressResponseType) {
   try {
@@ -18,7 +23,7 @@ export async function getAllOngoingSales(req: ExpressRequestType, res: ExpressRe
               .map(nft => nft.toJSON())
               .find(nft => nft.network === params.network && nft.tokenId === item.tokenId);
             axios
-              .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
+              .get(nft.tokenURI, { httpsAgent })
               .then(metadata => {
                 resolve({
                   ...item,
@@ -64,7 +69,7 @@ export async function getAllOngoingSalesByCollection(req: ExpressRequestType, re
               .map(nft => nft.toJSON())
               .find(nft => nft.network === params.network && nft.tokenId === item.tokenId);
             axios
-              .get(nft.tokenURI, { headers: { Accepts: 'application/json' } })
+              .get(nft.tokenURI, { httpsAgent })
               .then(metadata => {
                 resolve({
                   ...item,

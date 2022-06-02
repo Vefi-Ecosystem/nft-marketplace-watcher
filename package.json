@@ -40,6 +40,7 @@
     "ramda": "^0.28.0",
     "redis": "^4.1.0",
     "sequelize": "^6.19.0",
+    "socket.io": "^4.5.1",
     "web-push": "^3.5.0"
   },
   "devDependencies": {

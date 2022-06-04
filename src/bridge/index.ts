@@ -34,11 +34,11 @@ export const initializeBridgeSocket = (server: HttpServer) => {
           await models.order.deleteOrderItem({ where: { network, tokenId, collection: collectionId } });
           bridgeSocket.socketServer.emit('bridged', JSON.stringify({ message: 'NFT bridged' }));
         }
-
-        logger('Bridge socket initialized');
       } catch (error: any) {
         logger(error.message);
       }
     });
+
+    logger('Bridge socket initialized');
   });
 };

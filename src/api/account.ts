@@ -1,6 +1,5 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
 import { verifyMessage } from '@ethersproject/wallet';
-import { arrayify } from '@ethersproject/bytes';
 import { map, find, pick, any as anyMatch } from 'ramda';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
@@ -18,8 +17,7 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
     let result: any;
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());
     const { body } = pick(['body'], req);
-    const messageHashBytes = arrayify(body.messageHash);
-    const accountId = verifyMessage(messageHashBytes, body.signature);
+    const accountId = verifyMessage(body.messageHash, body.signature);
     const exists = anyMatch(account => account.accountId === accountId, allAccounts);
 
     if (exists) {
@@ -50,10 +48,7 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     let result: any;
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());
     const { body } = pick(['body'], req);
-    const messageHashBytes = arrayify(body.messageHash);
-    const accountId = verifyMessage(messageHashBytes, body.signature);
-
-    console.log(accountId);
+    const accountId = verifyMessage(body.messageHash, body.signature);
 
     const exists = anyMatch(account => account.accountId === accountId, allAccounts);
 

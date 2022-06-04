@@ -1,5 +1,5 @@
 import { Server as SocketServer } from 'socket.io';
-import type { Server as HttpServer } from 'https';
+import type { Server as HttpServer } from 'http';
 
 export default class BridgeSocket {
   public socketServer: SocketServer;

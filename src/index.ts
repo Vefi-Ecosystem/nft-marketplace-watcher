@@ -1,6 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
-import { createServer } from 'https';
+import { createServer } from 'http';
 import { sequelize } from './db';
 import { handleEvents } from './watcher';
 import chains from './chains';

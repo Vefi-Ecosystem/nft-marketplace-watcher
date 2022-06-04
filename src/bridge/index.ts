@@ -2,7 +2,7 @@ import { any as anyMatch, toLower } from 'ramda';
 import { arrayify } from '@ethersproject/bytes';
 import { verifyMessage } from '@ethersproject/wallet';
 import { models } from '../db';
-import type { Server as HttpServer } from 'https';
+import type { Server as HttpServer } from 'http';
 import BridgeSocket from './socket';
 import logger from '../logger';
 

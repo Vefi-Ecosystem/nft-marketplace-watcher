@@ -1,10 +1,12 @@
 import express from 'express';
 import morgan from 'morgan';
+import { createServer } from 'https';
 import { sequelize } from './db';
 import { handleEvents } from './watcher';
 import chains from './chains';
 import router from './api/router';
 import logger from './logger';
+import { initializeBridgeSocket } from './bridge';
 
 const port: number = parseInt(process.env.PORT || '6008');
 const app: express.Express = express();
@@ -26,7 +28,9 @@ app.get('/', (req, res) => {
   });
 });
 
-app.listen(port, () => {
+const server = createServer(app);
+
+server.listen(port, () => {
   logger('App is running on: %d', port);
 
   (() => {
@@ -37,6 +41,8 @@ app.listen(port, () => {
         handleEvents(<string>network.url, <string>network.contractAddress, network.name);
         logger('Now watching smart contract on: %s', network.name);
       }
+
+      initializeBridgeSocket(server);
     });
   })();
 });

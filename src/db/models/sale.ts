@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, ModelStatic, UpdateOptions } from 'sequelize';
+import { Sequelize, DataTypes, Model, ModelStatic, UpdateOptions, DestroyOptions } from 'sequelize';
 
 export default class Sale {
   model: ModelStatic<Model<any, any>>;
@@ -70,6 +70,12 @@ export default class Sale {
         .update(update, opts)
         .then(([affected]) => resolve(affected))
         .catch(reject);
+    });
+  }
+
+  deleteSaleItem(opts?: DestroyOptions): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.model.destroy(opts).then(resolve).catch(reject);
     });
   }
 }

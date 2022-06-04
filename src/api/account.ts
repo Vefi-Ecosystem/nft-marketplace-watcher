@@ -1,4 +1,6 @@
 import type { Request as ExpressRequestType, Response as ExpressResponseType } from 'express';
+import { verifyMessage } from '@ethersproject/wallet';
+import { arrayify } from '@ethersproject/bytes';
 import { map, find, pick, any as anyMatch } from 'ramda';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
@@ -16,16 +18,25 @@ export async function createAccount(req: ExpressRequestType, res: ExpressRespons
     let result: any;
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());
     const { body } = pick(['body'], req);
-    const exists = anyMatch(account => account.accountId === body.accountId, allAccounts);
+    const messageHashBytes = arrayify(body.messageHash);
+    const accountId = verifyMessage(messageHashBytes, body.signature);
+    const exists = anyMatch(account => account.accountId === accountId, allAccounts);
 
     if (exists) {
-      result = find(account => account.accountId === body.accountId, allAccounts);
+      result = find(account => account.accountId === accountId, allAccounts);
       const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
       result = { ...result, token };
       return _resolveWithCodeAndResponse(res, 200, { result });
     }
 
-    result = (await models.account.addAccount(body)).toJSON();
+    result = (
+      await models.account.addAccount({
+        email: body.email,
+        name: body.name,
+        metadataURI: body.metadataURI,
+        accountId
+      })
+    ).toJSON();
     const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
     result = { ...result, token };
     return _resolveWithCodeAndResponse(res, 201, { result });
@@ -39,18 +50,20 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     let result: any;
     const allAccounts = map(account => account.toJSON(), await models.account.findAll());
     const { body } = pick(['body'], req);
+    const messageHashBytes = arrayify(body.messageHash);
+    const accountId = verifyMessage(messageHashBytes, body.signature);
 
-    const exists = anyMatch(account => account.accountId === body.accountId, allAccounts);
+    const exists = anyMatch(account => account.accountId === accountId, allAccounts);
 
     if (!exists) {
-      result = { accountId: body.accountId, name: null, email: null };
+      result = { accountId, name: null, email: null };
 
       const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
       result = { ...result, token };
       return _resolveWithCodeAndResponse(res, 200, { result });
     }
 
-    result = find(account => account.accountId === body.accountId, allAccounts);
+    result = find(account => account.accountId === accountId, allAccounts);
 
     const token = jwt.sign(result, <string>jwtSecret, { noTimestamp: true });
     result = { ...result, token };
@@ -110,7 +123,7 @@ export async function getAccountById(req: ExpressRequestType, res: ExpressRespon
 
 export async function updateAccount(req: ExpressRequestType & { account: any }, res: ExpressResponseType) {
   try {
-    const { params, body, account } = pick(['params', 'body', 'account'], req);
+    const { body, account } = pick(['params', 'body', 'account'], req);
     const result = await models.account.updateAccount(body, { where: { accountId: account.accountId } });
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {

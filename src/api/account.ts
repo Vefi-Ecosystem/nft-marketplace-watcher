@@ -52,6 +52,7 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     const { body } = pick(['body'], req);
     const messageHashBytes = arrayify(body.messageHash);
     const accountId = verifyMessage(messageHashBytes, body.signature);
+    console.log(accountId);
 
     const exists = anyMatch(account => account.accountId === accountId, allAccounts);
 
@@ -69,6 +70,7 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     result = { ...result, token };
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
+    console.log(error.message);
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }
 }

@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, ModelStatic, UpdateOptions } from 'sequelize';
+import { Sequelize, DataTypes, Model, ModelStatic, UpdateOptions, DestroyOptions } from 'sequelize';
 
 export default class NFT {
   model: ModelStatic<Model<any, any>>;
@@ -55,6 +55,12 @@ export default class NFT {
         .update(body, opts)
         .then(([affected]) => resolve(affected))
         .catch(reject);
+    });
+  }
+
+  deleteNFT(opts?: DestroyOptions): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.model.destroy(opts).then(resolve).catch(reject);
     });
   }
 }

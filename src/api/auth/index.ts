@@ -24,7 +24,7 @@ export default function (
 
     const token = authorization?.substring(7, authorization.length);
 
-    if (!token) _throwErrorWithResponseCode('Token not found in auth header', 401);
+    if (!token) _throwErrorWithResponseCode('You must be a registered user to use this feature', 401);
 
     let authItem: any;
 

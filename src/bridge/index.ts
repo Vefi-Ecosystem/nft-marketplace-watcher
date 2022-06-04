@@ -38,7 +38,7 @@ export const initializeBridgeSocket = (server: HttpServer) => {
         logger(error.message);
       }
     });
-
-    logger('Bridge socket initialized');
+    logger('Socket with id %s connected', socket.id);
   });
+  logger('Bridge socket initialized');
 };

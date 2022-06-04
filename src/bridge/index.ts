@@ -1,5 +1,4 @@
 import { any as anyMatch, toLower } from 'ramda';
-import { arrayify } from '@ethersproject/bytes';
 import { verifyMessage } from '@ethersproject/wallet';
 import { models } from '../db';
 import type { Server as HttpServer } from 'http';
@@ -13,8 +12,7 @@ export const initializeBridgeSocket = (server: HttpServer) => {
     socket.on('bridge', async args => {
       try {
         const { collectionId, tokenId, network, signature, owner, messageHash, bridgeRequestBody } = JSON.parse(args);
-        const messageHashBytes = arrayify(messageHash);
-        const recoveredAddress = verifyMessage(messageHashBytes, signature);
+        const recoveredAddress = verifyMessage(messageHash, signature);
 
         // Check if NFT exists
         const allNFTs = await models.nft.findAll();

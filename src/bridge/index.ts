@@ -32,6 +32,7 @@ export const initializeBridgeSocket = (server: HttpServer) => {
           await models.nft.deleteNFT({ where: { owner, network, tokenId, collectionId } });
           await models.sale.deleteSaleItem({ where: { network, tokenId, collectionId } });
           await models.order.deleteOrderItem({ where: { network, tokenId, collection: collectionId } });
+          await models.favorite.removeFromFavorites({ where: { network, accountId: owner, tokenId, collectionId } });
           bridgeSocket.socketServer.emit('bridged', JSON.stringify({ message: 'NFT bridged' }));
         }
       } catch (error: any) {

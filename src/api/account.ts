@@ -53,7 +53,6 @@ export async function signAuthToken(req: ExpressRequestType, res: ExpressRespons
     const messageHashBytes = arrayify(body.messageHash);
     const accountId = verifyMessage(messageHashBytes, body.signature);
 
-
     const exists = anyMatch(account => account.accountId === accountId, allAccounts);
 
     if (!exists) {

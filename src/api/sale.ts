@@ -98,6 +98,24 @@ export async function getAllOngoingSalesByCollection(req: ExpressRequestType, re
   }
 }
 
+export async function getOngoingSaleOfNFT(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const allSales = await models.sale.findAll();
+    const allSalesJSON = map(item => item.toJSON(), allSales);
+    const { params } = pick(['params'], req);
+    const result = allSalesJSON.find(
+      sale =>
+        sale.network === params.network &&
+        sale.collectionId === params.collectionId &&
+        sale.tokenId === parseInt(params.tokenId) &&
+        sale.status === 'ON_GOING'
+    );
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
 export async function countAllSuccessfulTradesByCollection(req: ExpressRequestType, res: ExpressResponseType) {
   try {
     const allTrades = await models.sale.findAll();

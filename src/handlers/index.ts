@@ -167,7 +167,7 @@ export function handleSaleMadeEvent(url: string, network: string) {
           from: userEmail,
           to: account.email,
           subject: `Purchase made on item with ID ${tokenId}`,
-          html: `Account ${_buyer} has purchased your item with ID ${tokenId} for ${readableAmount} ${tokenName}`
+          html: `Account ${_buyer} has purchased your item with ID <b>${tokenId}</b> for ${readableAmount} ${tokenName}`
         });
       }
 

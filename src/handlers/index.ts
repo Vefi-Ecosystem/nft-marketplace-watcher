@@ -9,6 +9,8 @@ import logger from '../logger';
 import deployableCollectionABI from '../assets/DeployableCollectionABI.json';
 import marketABI from '../assets/MarketplaceABI.json';
 import { sendNotification } from '../push';
+import mail from '../mail';
+import { userEmail } from '../env';
 
 const collectionAbiInterface = new Interface(deployableCollectionABI);
 const marketAbiInterface = new Interface(marketABI);
@@ -151,6 +153,23 @@ export function handleSaleMadeEvent(url: string, network: string) {
         title: 'Sale Made',
         data: `Account ${_buyer} has purchased NFT with ID ${tokenId} for ${readableAmount} ${tokenName}`
       });
+
+      const allAccounts = await models.account.findAll();
+      const allAccountsJSON = allAccounts.map(account => account.toJSON());
+
+      const account = allAccountsJSON.find(a => a.accountId === owner);
+
+      if (!!account) {
+        // Create mail transport
+        const transport = await mail();
+
+        await transport.sendMail({
+          from: userEmail,
+          to: account.email,
+          subject: `Purchase made on item with ID ${tokenId}`,
+          html: `Account ${_buyer} has purchased your item with ID ${tokenId} for ${readableAmount} ${tokenName}`
+        });
+      }
 
       logger('Market item finalized, %d items affected', affectedRecord);
     } catch (error) {

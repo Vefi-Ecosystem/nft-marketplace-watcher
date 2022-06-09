@@ -25,3 +25,12 @@ export const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
 
 // JWT
 export const jwtSecret = process.env.JWT_SECRET;
+
+// Verifer address
+export const verifierAddress = process.env.VERIFIER_ADDRESS;
+
+// Email credentials
+export const userEmail = process.env.USER_EMAIL;
+export const clientId = process.env.CLIENT_ID;
+export const clientSecret = process.env.CLIENT_SECRET;
+export const refreshToken = process.env.REFRESH_TOKEN;

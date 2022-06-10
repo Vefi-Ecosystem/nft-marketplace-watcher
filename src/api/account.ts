@@ -5,8 +5,8 @@ import { map, find, pick, any as anyMatch } from 'ramda';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { models } from '../db';
-import { _resolveWithCodeAndResponse } from './common';
-import { jwtSecret } from '../env';
+import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import { jwtSecret, verifierAddress } from '../env';
 import https from 'https';
 
 const httpsAgent = new https.Agent({
@@ -128,5 +128,35 @@ export async function updateAccount(req: ExpressRequestType & { account: any }, 
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function setVerificationStatus(
+  req: ExpressRequestType & { signature: string; messageHash: string },
+  res: ExpressResponseType
+) {
+  try {
+    const { signature, messageHash, body } = pick(['signature', 'messageHash', 'body'], req);
+    const messageHashBytes = arrayify(messageHash);
+    const address = verifyMessage(messageHashBytes, signature);
+
+    if (address.toLowerCase() !== verifierAddress?.toLowerCase()) {
+      _throwErrorWithResponseCode('NotAuthorizedToVerify', 400);
+    }
+
+    const result = await models.account.updateAccount(
+      {
+        isVerified: body.isVerified
+      },
+      {
+        where: {
+          accountId: body.accountId
+        }
+      }
+    );
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
   }
 }

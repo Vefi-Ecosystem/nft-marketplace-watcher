@@ -2,6 +2,7 @@ import type { Request as ExpressRequestType, Response as ExpressResponseType } f
 import { map, pick, any as anyMatch } from 'ramda';
 import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
+import { vapidPublicKey } from '../env';
 
 export async function subscribeForPush(req: ExpressRequestType & { accountId: string }, res: ExpressResponseType) {
   try {
@@ -36,6 +37,14 @@ export async function cancelPushSubscription(
   try {
     await models.push.deletePushSubscription({ where: { accountId: req.accountId } });
     return _resolveWithCodeAndResponse(res, 200, { result: 'DONE' });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function getPublicKey(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    return _resolveWithCodeAndResponse(res, 200, { result: vapidPublicKey });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
   }

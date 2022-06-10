@@ -166,8 +166,14 @@ export function handleSaleMadeEvent(url: string, network: string) {
         await transport.sendMail({
           from: userEmail,
           to: account.email,
-          subject: `Purchase made on item with ID ${tokenId}`,
-          html: `Account ${_buyer} has purchased your item with ID <b>${tokenId}</b> for ${readableAmount} ${tokenName}`
+          subject: `Offer made for item with ID ${tokenId} (Vefi NFT marketplace)`,
+          html: `<div style="border: 1px solid #dcdcdc; padding: 4px; text-align: center;">
+            <div style="display: flex; justify-content: center; align-items: center;">
+              <h1 style="text-align: center;">Someone made an offer for your item</h1>
+            </div>
+            <br/>
+            <span>Account ${_buyer} has purchased your item with ID <b>${tokenId}</b> for ${readableAmount} ${tokenName}</span>
+          </div>`
         });
       }
 
@@ -208,10 +214,42 @@ export function handleOrderMadeEvent(url: string, network: string) {
         timeStamp: Math.floor(divide(Date.now(), 1000))
       });
 
-      await sendNotification(bidCurrency, {
+      const storedOrderJSON = storedOrder.toJSON();
+      const allNFTs = (await models.nft.findAll()).map(nft => nft.toJSON());
+      const NFT = allNFTs.find(
+        n =>
+          n.collectionId === storedOrderJSON.collection &&
+          n.network === storedOrderJSON.network &&
+          n.tokenId === tokenId
+      );
+
+      const allAccounts = await models.account.findAll();
+      const allAccountsJSON = allAccounts.map(account => account.toJSON());
+
+      const account = allAccountsJSON.find(a => a.accountId === NFT.owner);
+
+      await sendNotification(account.accountId, {
         title: 'New order',
         data: `Account ${creator} is offering ${readableAmount} ${tokenName} for NFT with ID ${tokenId}`
       });
+
+      if (!!account) {
+        // Create mail transport
+        const transport = await mail();
+
+        await transport.sendMail({
+          from: userEmail,
+          to: account.email,
+          subject: `Offer made for item with ID ${tokenId} (Vefi NFT marketplace)`,
+          html: `<div style="border: 1px solid #dcdcdc; padding: 4px; text-align: center;">
+            <div style="display: flex; justify-content: center; align-items: center;">
+              <h1 style="text-align: center;">Someone made an offer for your item</h1>
+            </div>
+            <br/>
+            <span>Account ${creator} has offered ${readableAmount} ${tokenName} for your asset with ID <b>${tokenId}</b></span>
+          </div>`
+        });
+      }
 
       logger('New offer made: %s', JSON.stringify(storedOrder.toJSON(), undefined, 2));
     } catch (error) {
@@ -246,6 +284,34 @@ export function handleOrderEndedEvent(network: string) {
         { owner: order.creator },
         { where: { tokenId: NFT.tokenId, network, collectionId: NFT.collectionId } }
       );
+
+      await sendNotification(order.creator, {
+        title: 'Offer accepted',
+        data: `Account ${NFT.owner} has accepted your offer for ${NFT.tokenId}`
+      });
+
+      const allAccounts = await models.account.findAll();
+      const allAccountsJSON = allAccounts.map(account => account.toJSON());
+
+      const account = allAccountsJSON.find(a => a.accountId === order.creator);
+
+      if (!!account) {
+        // Create mail transport
+        const transport = await mail();
+
+        await transport.sendMail({
+          from: userEmail,
+          to: account.email,
+          subject: `Offer accepted for token with ID ${NFT.tokenId} (Vefi NFT marketplace)`,
+          html: `<div style="border: 1px solid #dcdcdc; padding: 4px; text-align: center;">
+            <div style="display: flex; justify-content: center; align-items: center;">
+              <h1 style="text-align: center;">Your offer was accepted</h1>
+            </div>
+            <br/>
+            <span>Account ${NFT.owner} has accepted your offer for asset with ID <b>${NFT.tokenId}</b></span>
+          </div>`
+        });
+      }
 
       logger('Order updated. Rows affected: %d', affectedCount);
     } catch (error) {

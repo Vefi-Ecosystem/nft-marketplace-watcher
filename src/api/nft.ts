@@ -7,6 +7,8 @@ import { models } from '../db';
 import { _resolveWithCodeAndResponse, _throwErrorWithResponseCode } from './common';
 import { redisViewsKey } from '../constants';
 import https from 'https';
+import { arrayify } from '@ethersproject/bytes';
+import { verifyMessage } from '@ethersproject/wallet';
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false
@@ -501,6 +503,44 @@ export async function removeNFTFromFavorites(req: ExpressRequestType & { account
     return _resolveWithCodeAndResponse(res, 200, { result });
   } catch (error: any) {
     return _resolveWithCodeAndResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function removeNFTFromCollection(req: ExpressRequestType, res: ExpressResponseType) {
+  try {
+    const { params, body } = pick(['params', 'body'], req);
+    const { messageHash, signature } = body;
+    const messageHashBytes = arrayify(messageHash);
+    const accountId = verifyMessage(messageHashBytes, signature);
+    const allCollections = (await models.collection.findAll()).map(collection => collection.toJSON());
+    const collection = allCollections.find(c => c.collectionId === params.collectionId && c.network === params.network);
+
+    if (!collection) _throwErrorWithResponseCode('Collection does not exist', 404);
+
+    if (collection.collectionOwner !== accountId)
+      _throwErrorWithResponseCode('Only this collection owner can access this resource', 400);
+
+    const result = await models.nft.deleteNFT({
+      where: {
+        tokenId: parseInt(params.tokenId),
+        collectionId: params.collectionId,
+        network: params.network
+      }
+    });
+
+    await models.sale.deleteSaleItem({
+      where: { network: params.network, tokenId: parseInt(params.tokenId), collectionId: params.collectionId }
+    });
+    await models.order.deleteOrderItem({
+      where: { network: params.network, tokenId: parseInt(params.tokenId), collectionId: params.collectionId }
+    });
+    await models.favorite.removeFromFavorites({
+      where: { network: params.network, tokenId: parseInt(params.tokenId), collectionId: params.collectionId }
+    });
+
+    return _resolveWithCodeAndResponse(res, 200, { result });
+  } catch (error: any) {
+    return _resolveWithCodeAndResponse(res, error.errorCode || 500, { error: error.message });
   }
 }
 

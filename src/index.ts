@@ -38,8 +38,10 @@ server.listen(port, () => {
       logger('Sequelize connected to DB');
 
       for (const network of chains) {
-        handleEvents(<string>network.url, <string>network.contractAddress, network.name);
-        logger('Now watching smart contract on: %s', network.name);
+        if (!!network.url && !!network.contractAddress) {
+          handleEvents(<string>network.url, <string>network.contractAddress, network.name);
+          logger('Now watching smart contract on: %s', network.name);
+        }
       }
 
       initializeBridgeSocket(server);

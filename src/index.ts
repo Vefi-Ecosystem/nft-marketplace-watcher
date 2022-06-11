@@ -39,7 +39,7 @@ server.listen(port, () => {
 
       for (const network of chains) {
         if (!!network.url && !!network.contractAddress) {
-          handleEvents(<string>network.url, <string>network.contractAddress, network.name);
+          handleEvents(<string>network.url, <string>network.contractAddress, network.name, network.network);
           logger('Now watching smart contract on: %s', network.name);
         }
       }

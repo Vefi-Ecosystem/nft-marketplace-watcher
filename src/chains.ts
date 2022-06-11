@@ -29,6 +29,11 @@ const chains: Array<NetworkInterface> = [
     url: 'https://api.avax.network/ext/bc/C/rpc',
     contractAddress: '0xb562b09Bc2317D18a82FD415B7Fb33540Db7e723',
     name: 'avalanche'
+  },
+  {
+    url: 'https://mainnet.telos.net/evm',
+    contractAddress: '0x64FAF984Bf60dE19e24238521814cA98574E3b00',
+    name: 'telos'
   }
 ];
 

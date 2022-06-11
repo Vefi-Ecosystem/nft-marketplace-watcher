@@ -16,7 +16,7 @@ const chains: Array<NetworkInterface> = [
     name: 'polygon'
   },
   {
-    url: 'https://chainrpc.com',
+    url: 'https://mainnet-rpc.brisescan.com',
     contractAddress: '0xA1FcA451AF5782d6A25582DAc5AF77B867a5bcC9',
     name: 'bitgert'
   },

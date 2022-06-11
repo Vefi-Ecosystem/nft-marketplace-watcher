@@ -532,7 +532,7 @@ export async function removeNFTFromCollection(req: ExpressRequestType, res: Expr
       where: { network: params.network, tokenId: parseInt(params.tokenId), collectionId: params.collectionId }
     });
     await models.order.deleteOrderItem({
-      where: { network: params.network, tokenId: parseInt(params.tokenId), collectionId: params.collectionId }
+      where: { network: params.network, tokenId: parseInt(params.tokenId), collection: params.collectionId }
     });
     await models.favorite.removeFromFavorites({
       where: { network: params.network, tokenId: parseInt(params.tokenId), collectionId: params.collectionId }

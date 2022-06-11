@@ -33,7 +33,7 @@ router.post('/:network/:collectionId/:tokenId/addToFavorites', <any>auth, <any>a
 router.get('/:network/:accountId/getFavorites', getFavoriteNFTsOfUser);
 router.get('/:network/:collectionId/:tokenId/getAllFavorites', getAllFavorites);
 router.delete('/:network/:collectionId/:tokenId/removeFromFavorites', <any>auth, <any>removeNFTFromFavorites);
-router.delete('/:network/:collectionId/:tokenId/removeNFT', removeNFTFromCollection);
+router.patch('/:network/:collectionId/:tokenId/removeNFT', removeNFTFromCollection);
 router.post('/:network/:collectionId/:tokenId/view', <any>auth, view);
 router.get('/:network/:collectionId/:tokenId/countViews', countViews);
 router.get('/:network/:collectionId/topSelling', getTopSellingNFtsInCollection);

@@ -221,7 +221,7 @@ export function handleOrderMadeEvent(url: string, network: string, networkish?: 
         n =>
           n.collectionId === storedOrderJSON.collection &&
           n.network === storedOrderJSON.network &&
-          n.tokenId === tokenId
+          n.tokenId === storedOrderJSON.tokenId
       );
 
       const allAccounts = await models.account.findAll();

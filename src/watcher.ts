@@ -23,7 +23,7 @@ const saleMadeHash: string = hashId('SaleMade(bytes32,address,address,uint256,ad
 const orderMadeHash: string = hashId('OrderMade(address,address,address,uint256,address,uint256,bytes32)');
 const orderCancelledHash: string = hashId('OrderItemCancelled(bytes32,uint256)');
 const orderEndedHash: string = hashId('OrderItemEnded(bytes32,uint256)');
-const orderRejectedHash: string = hashId('OrderItemRejected(bytes32, uint256)');
+const orderRejectedHash: string = hashId('OrderItemRejected(bytes32,uint256)');
 
 export function handleEvents(url: string, address: string, network: string, networkish?: Networkish) {
   const provider = buildProvider(url, networkish);

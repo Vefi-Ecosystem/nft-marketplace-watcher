@@ -12,7 +12,7 @@ export async function sendNotification(accountId: string, message: { title: stri
 
     const { endpoint, keys } = find(sub => sub.accountId === accountId, allSubsJSON);
 
-    return Promise.resolve(webpush.sendNotification({ endpoint, keys: JSON.parse(keys) }, JSON.stringify(message)));
+    return Promise.resolve(webpush.sendNotification({ endpoint, keys }, JSON.stringify(message)));
   } catch (error: any) {
     throw error;
   }

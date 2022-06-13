@@ -21,7 +21,7 @@ const chains: Array<NetworkInterface> = [
     network: 137
   },
   {
-    url: 'https://chainrrpc.com',
+    url: 'https://chainrpc.com',
     contractAddress: '0xA1FcA451AF5782d6A25582DAc5AF77B867a5bcC9',
     name: 'bitgert',
     network: 32520

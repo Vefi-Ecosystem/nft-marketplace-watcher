@@ -43,6 +43,12 @@ const chains: Array<NetworkInterface> = [
     contractAddress: '0x64FAF984Bf60dE19e24238521814cA98574E3b00',
     name: 'telos',
     network: 40
+  },
+  {
+    url: 'https://evm.gatenode.cc',
+    contractAddress: '0x2e19F01B81628CCd8cFce9F7d9F2fACC77343b7c',
+    name: 'gatechain',
+    network: 86
   }
 ];
 
